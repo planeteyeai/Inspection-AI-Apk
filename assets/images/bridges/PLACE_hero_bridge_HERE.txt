@@ -1,0 +1,5 @@
+Place your real bridge photograph here as:
+
+  assets/images/bridges/hero_bridge.jpg
+
+Do not rename the file. After adding it, hot-restart the app.
