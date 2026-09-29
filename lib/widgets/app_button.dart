@@ -46,8 +46,12 @@ class AppButton extends StatelessWidget {
         child: Ink(
           height: 52,
           decoration: BoxDecoration(
-            gradient: onPressed == null || loading ? null : AppColors.primaryGradient,
-            color: onPressed == null || loading ? AppColors.primary.withValues(alpha: 0.45) : null,
+            gradient: onPressed == null || loading
+                ? null
+                : AppColors.primaryGradient,
+            color: onPressed == null || loading
+                ? AppColors.primary.withValues(alpha: 0.45)
+                : null,
             borderRadius: BorderRadius.circular(14),
             boxShadow: onPressed == null
                 ? null
@@ -64,7 +68,10 @@ class AppButton extends StatelessWidget {
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: Colors.white,
+                    ),
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,

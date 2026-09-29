@@ -6,9 +6,11 @@ import '../models/inspection_models.dart';
 import '../models/span_arrangement_record.dart';
 import 'auth_user.dart';
 import 'mysql_auth_query_stub.dart'
-    if (dart.library.io) 'mysql_auth_query_io.dart' as mysql_auth;
+    if (dart.library.io) 'mysql_auth_query_io.dart'
+    as mysql_auth;
 import 'mysql_bridge_query_stub.dart'
-    if (dart.library.io) 'mysql_bridge_query_io.dart' as mysql_bridge;
+    if (dart.library.io) 'mysql_bridge_query_io.dart'
+    as mysql_bridge;
 
 export 'auth_user.dart';
 
@@ -70,7 +72,8 @@ class DatabaseService {
     );
   }
 
-  static Future<List<BridgeRecord>> getBridgesForProjectStructureTypeAndChainage(
+  static Future<List<BridgeRecord>>
+  getBridgesForProjectStructureTypeAndChainage(
     String projectName,
     String structureTypeCode,
     String chainage,
@@ -88,15 +91,22 @@ class DatabaseService {
     String chainage,
   ) {
     _ensureConfigured();
-    return mysql_bridge.getBridgesForProjectAndChainageImpl(projectName, chainage);
+    return mysql_bridge.getBridgesForProjectAndChainageImpl(
+      projectName,
+      chainage,
+    );
   }
 
-  static Future<List<SpanArrangementRecord>> getSpanArrangementsForBridge(int bridgeId) {
+  static Future<List<SpanArrangementRecord>> getSpanArrangementsForBridge(
+    int bridgeId,
+  ) {
     _ensureConfigured();
     return mysql_bridge.getSpanArrangementsForBridgeImpl(bridgeId);
   }
 
-  static Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfo(int bridgeId) {
+  static Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfo(
+    int bridgeId,
+  ) {
     _ensureConfigured();
     return mysql_bridge.getSuperstructureBridgeInfoImpl(bridgeId);
   }
@@ -104,5 +114,17 @@ class DatabaseService {
   static Future<List<String>> getSuperstructureTypeOptions() {
     _ensureConfigured();
     return mysql_bridge.getSuperstructureTypeOptionsImpl();
+  }
+
+  static Future<int?> getLatestBridgeInspectionId(int bridgeId) {
+    _ensureConfigured();
+    return mysql_bridge.getLatestBridgeInspectionIdImpl(bridgeId);
+  }
+
+  static Future<bool> insertBridgeInspectionDistress(
+    List<BridgeInspectionDistressEntry> entries,
+  ) {
+    _ensureConfigured();
+    return mysql_bridge.insertBridgeInspectionDistressImpl(entries);
   }
 }

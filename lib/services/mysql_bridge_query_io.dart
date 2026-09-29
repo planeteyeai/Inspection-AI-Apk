@@ -186,7 +186,9 @@ Future<List<String>> getChainagesForProjectAndStructureTypeImpl(
   String projectName,
   String structureTypeCode,
 ) {
-  return _withConnection('getChainagesForProjectAndStructureType', (conn) async {
+  return _withConnection('getChainagesForProjectAndStructureType', (
+    conn,
+  ) async {
     final result = await conn.execute(
       '''
 SELECT DISTINCT chainage
@@ -197,10 +199,7 @@ WHERE project_name = :projectName
   AND TRIM(chainage) <> ''
 ORDER BY chainage
 ''',
-      {
-        'projectName': projectName,
-        'structureTypeCode': structureTypeCode,
-      },
+      {'projectName': projectName, 'structureTypeCode': structureTypeCode},
     );
 
     final chainages = <String>[];
@@ -243,30 +242,32 @@ WHERE project_name = :projectName
   AND chainage = :chainage
 ORDER BY bridge_id
 ''',
-      {
-        'projectName': projectName,
-        'chainage': chainage,
-      },
+      {'projectName': projectName, 'chainage': chainage},
     );
 
-    return result.rows.map((row) {
-      return BridgeRecord(
-        bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? 0,
-        projectName: _col(row, 'project_name') ?? projectName,
-        chainage: _col(row, 'chainage') ?? chainage,
-        bridgeNo: _col(row, 'bridge_no'),
-        bridgeSide: _col(row, 'bridge_side'),
-        latitude: _col(row, 'latitude'),
-        longitude: _col(row, 'longitude'),
-        totalNoOfSpan: int.tryParse(row.colByName('total_no_of_span') ?? ''),
-        typeOfBridge: _col(row, 'type_of_bridge'),
-        structuralForm: _col(row, 'structural_form'),
-        materialOfConstruction: _col(row, 'material_of_construction'),
-        widthOfBridge: _col(row, 'width_of_bridge'),
-        lengthOfBridge: _col(row, 'length_of_bridge'),
-        heightOfBridge: _col(row, 'height_of_bridge'),
-      );
-    }).where((b) => b.bridgeId > 0).toList();
+    return result.rows
+        .map((row) {
+          return BridgeRecord(
+            bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? 0,
+            projectName: _col(row, 'project_name') ?? projectName,
+            chainage: _col(row, 'chainage') ?? chainage,
+            bridgeNo: _col(row, 'bridge_no'),
+            bridgeSide: _col(row, 'bridge_side'),
+            latitude: _col(row, 'latitude'),
+            longitude: _col(row, 'longitude'),
+            totalNoOfSpan: int.tryParse(
+              row.colByName('total_no_of_span') ?? '',
+            ),
+            typeOfBridge: _col(row, 'type_of_bridge'),
+            structuralForm: _col(row, 'structural_form'),
+            materialOfConstruction: _col(row, 'material_of_construction'),
+            widthOfBridge: _col(row, 'width_of_bridge'),
+            lengthOfBridge: _col(row, 'length_of_bridge'),
+            heightOfBridge: _col(row, 'height_of_bridge'),
+          );
+        })
+        .where((b) => b.bridgeId > 0)
+        .toList();
   });
 }
 
@@ -276,7 +277,9 @@ Future<List<BridgeRecord>> getBridgesForProjectStructureTypeAndChainageImpl(
   String structureTypeCode,
   String chainage,
 ) {
-  return _withConnection('getBridgesForProjectStructureTypeAndChainage', (conn) async {
+  return _withConnection('getBridgesForProjectStructureTypeAndChainage', (
+    conn,
+  ) async {
     final result = await conn.execute(
       '''
 SELECT
@@ -307,28 +310,35 @@ ORDER BY bridge_id
       },
     );
 
-    return result.rows.map((row) {
-      return BridgeRecord(
-        bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? 0,
-        projectName: _col(row, 'project_name') ?? projectName,
-        chainage: _col(row, 'chainage') ?? chainage,
-        bridgeNo: _col(row, 'bridge_no'),
-        bridgeSide: _col(row, 'bridge_side'),
-        latitude: _col(row, 'latitude'),
-        longitude: _col(row, 'longitude'),
-        totalNoOfSpan: int.tryParse(row.colByName('total_no_of_span') ?? ''),
-        typeOfBridge: _col(row, 'type_of_bridge'),
-        structuralForm: _col(row, 'structural_form'),
-        materialOfConstruction: _col(row, 'material_of_construction'),
-        widthOfBridge: _col(row, 'width_of_bridge'),
-        lengthOfBridge: _col(row, 'length_of_bridge'),
-        heightOfBridge: _col(row, 'height_of_bridge'),
-      );
-    }).where((b) => b.bridgeId > 0).toList();
+    return result.rows
+        .map((row) {
+          return BridgeRecord(
+            bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? 0,
+            projectName: _col(row, 'project_name') ?? projectName,
+            chainage: _col(row, 'chainage') ?? chainage,
+            bridgeNo: _col(row, 'bridge_no'),
+            bridgeSide: _col(row, 'bridge_side'),
+            latitude: _col(row, 'latitude'),
+            longitude: _col(row, 'longitude'),
+            totalNoOfSpan: int.tryParse(
+              row.colByName('total_no_of_span') ?? '',
+            ),
+            typeOfBridge: _col(row, 'type_of_bridge'),
+            structuralForm: _col(row, 'structural_form'),
+            materialOfConstruction: _col(row, 'material_of_construction'),
+            widthOfBridge: _col(row, 'width_of_bridge'),
+            lengthOfBridge: _col(row, 'length_of_bridge'),
+            heightOfBridge: _col(row, 'height_of_bridge'),
+          );
+        })
+        .where((b) => b.bridgeId > 0)
+        .toList();
   });
 }
 
-Future<List<SpanArrangementRecord>> getSpanArrangementsForBridgeImpl(int bridgeId) {
+Future<List<SpanArrangementRecord>> getSpanArrangementsForBridgeImpl(
+  int bridgeId,
+) {
   return _withConnection('getSpanArrangementsForBridge', (conn) async {
     final result = await conn.execute(
       '''
@@ -346,22 +356,28 @@ ORDER BY sp_id
     );
 
     var index = 1;
-    return result.rows.map((row) {
-      final record = SpanArrangementRecord(
-        spId: int.tryParse(row.colByName('sp_id') ?? '') ?? 0,
-        bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? bridgeId,
-        spanMaterial: _col(row, 'span_material'),
-        spanType: _col(row, 'span_type'),
-        spanLength: _col(row, 'span_length'),
-        displayIndex: index,
-      );
-      index++;
-      return record;
-    }).where((s) => s.spId > 0).toList();
+    return result.rows
+        .map((row) {
+          final record = SpanArrangementRecord(
+            spId: int.tryParse(row.colByName('sp_id') ?? '') ?? 0,
+            bridgeId:
+                int.tryParse(row.colByName('bridge_id') ?? '') ?? bridgeId,
+            spanMaterial: _col(row, 'span_material'),
+            spanType: _col(row, 'span_type'),
+            spanLength: _col(row, 'span_length'),
+            displayIndex: index,
+          );
+          index++;
+          return record;
+        })
+        .where((s) => s.spId > 0)
+        .toList();
   });
 }
 
-Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfoImpl(int bridgeId) {
+Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfoImpl(
+  int bridgeId,
+) {
   return _withConnection('getSuperstructureBridgeInfo', (conn) async {
     final result = await conn.execute(
       '''
@@ -382,11 +398,14 @@ LIMIT 1
     if (result.numOfRows < 1) return null;
     final row = result.rows.first;
     return SuperstructureBridgeInfo(
-      superstructureBridgeId:
-          int.tryParse(row.colByName('superstructure_bridge_id') ?? ''),
+      superstructureBridgeId: int.tryParse(
+        row.colByName('superstructure_bridge_id') ?? '',
+      ),
       bridgeId: int.tryParse(row.colByName('bridge_id') ?? '') ?? bridgeId,
-      reinforcedConcreteAndPrestressedConcreteMembers:
-          _col(row, 'reinforced_concrete_and_prestressed_concrete_members'),
+      reinforcedConcreteAndPrestressedConcreteMembers: _col(
+        row,
+        'reinforced_concrete_and_prestressed_concrete_members',
+      ),
       checkSteelMembers: _col(row, 'check_steel_members'),
       status: _col(row, 'status'),
     );
@@ -422,8 +441,12 @@ ORDER BY type_of_span, structural_system, type_of_material
 
       final structural = _col(row, 'structural_system');
       final material = _col(row, 'type_of_material');
-      if (structural != null && structural.toLowerCase().startsWith('seed_')) continue;
-      if (material != null && material.toLowerCase().startsWith('seed_')) continue;
+      if (structural != null && structural.toLowerCase().startsWith('seed_')) {
+        continue;
+      }
+      if (material != null && material.toLowerCase().startsWith('seed_')) {
+        continue;
+      }
 
       final parts = <String>[typeOfSpan];
       if (structural != null) parts.add(structural);
@@ -434,5 +457,127 @@ ORDER BY type_of_span, structural_system, type_of_material
       }
     }
     return options;
+  });
+}
+
+/// Resolves the latest inspection ID for a given bridge ID if an inspection record exists.
+Future<int?> getLatestBridgeInspectionIdImpl(int bridgeId) {
+  return _withConnection('getLatestBridgeInspectionId', (conn) async {
+    try {
+      final result = await conn.execute(
+        '''
+SELECT bridge_inspection_id
+FROM database_Bms.bridge_inspection
+WHERE bridge_id = :bridgeId
+ORDER BY bridge_inspection_id DESC
+LIMIT 1
+''',
+        {'bridgeId': bridgeId},
+      );
+
+      if (result.numOfRows > 0) {
+        return int.tryParse(
+          result.rows.first.colByName('bridge_inspection_id') ?? '',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '[BRIDGE_DB_DIAG] stage=getLatestBridgeInspectionId error=$e',
+        );
+      }
+    }
+    return null;
+  });
+}
+
+/// Inserts detected distress records into database_Bms.bridge_inspection_distress using parameterized SQL.
+Future<bool> insertBridgeInspectionDistressImpl(
+  List<BridgeInspectionDistressEntry> entries,
+) {
+  if (entries.isEmpty) return Future.value(true);
+
+  return _withConnection('insertBridgeInspectionDistress', (conn) async {
+    for (final entry in entries) {
+      await conn.execute(
+        '''
+INSERT INTO database_Bms.bridge_inspection_distress (
+  bridge_inspection_id,
+  table_type,
+  distress_type,
+  name_of_span,
+  field_type,
+  distress_length,
+  distress_width,
+  distress_depth,
+  distress_nos,
+  distance_of_distress_x,
+  distance_of_distress_y,
+  abutment_A1,
+  abutment_A2,
+  piers,
+  spans,
+  foundation,
+  expansion,
+  lhs_distress,
+  rhs_distress,
+  created_by,
+  created_on,
+  repair_methodology,
+  images
+) VALUES (
+  :bridge_inspection_id,
+  :table_type,
+  :distress_type,
+  :name_of_span,
+  :field_type,
+  :distress_length,
+  :distress_width,
+  :distress_depth,
+  :distress_nos,
+  :distance_of_distress_x,
+  :distance_of_distress_y,
+  :abutment_A1,
+  :abutment_A2,
+  :piers,
+  :spans,
+  :foundation,
+  :expansion,
+  :lhs_distress,
+  :rhs_distress,
+  :created_by,
+  :created_on,
+  :repair_methodology,
+  :images
+)
+''',
+        {
+          'bridge_inspection_id': entry.bridgeInspectionId,
+          'table_type': entry.tableType,
+          'distress_type': entry.distressType,
+          'name_of_span': entry.nameOfSpan,
+          'field_type': entry.fieldType,
+          'distress_length': entry.distressLength,
+          'distress_width': entry.distressWidth,
+          'distress_depth': entry.distressDepth,
+          'distress_nos': entry.distressNos,
+          'distance_of_distress_x': entry.distanceOfDistressX,
+          'distance_of_distress_y': entry.distanceOfDistressY,
+          'abutment_A1': entry.abutmentA1,
+          'abutment_A2': entry.abutmentA2,
+          'piers': entry.piers,
+          'spans': entry.spans,
+          'foundation': entry.foundation,
+          'expansion': entry.expansion,
+          'lhs_distress': entry.lhsDistress,
+          'rhs_distress': entry.rhsDistress,
+          'created_by': entry.createdBy,
+          'created_on': entry.createdOn,
+          'repair_methodology': entry.repairMethodology,
+          'images': entry.images,
+        },
+      );
+    }
+    return true;
   });
 }

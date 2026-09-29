@@ -19,7 +19,9 @@ class AppBrandMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleColor = light ? Colors.white : AppColors.ink;
-    final subColor = light ? Colors.white.withValues(alpha: 0.9) : AppColors.muted;
+    final subColor = light
+        ? Colors.white.withValues(alpha: 0.9)
+        : AppColors.muted;
     final iconSize = compact ? 15.0 : 18.0;
     final titleSize = compact ? 15.0 : 22.0;
 
@@ -47,7 +49,12 @@ class AppBrandMark extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             AppBrand.subtitle,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: subColor, height: 1.35),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: subColor,
+              height: 1.35,
+            ),
           ),
         ],
       ],

@@ -63,12 +63,20 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete report?'),
-        content: const Text('This will remove the saved inspection report from this device.'),
+        content: const Text(
+          'This will remove the saved inspection report from this device.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.danger),
+            ),
           ),
         ],
       ),
@@ -86,10 +94,16 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
         title: const Text('Clear all reports?'),
         content: const Text('This will delete all saved inspection reports.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.danger),
+            ),
           ),
         ],
       ),
@@ -110,100 +124,120 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
               children: [
                 CircularProgressIndicator(color: AppColors.primary),
                 SizedBox(height: 12),
-                Text('Loading reports...', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+                Text(
+                  'Loading reports...',
+                  style: TextStyle(fontSize: 12, color: AppColors.muted),
+                ),
               ],
             ),
           )
         : _reports.isEmpty
-            ? const AppEmptyState(
-                title: 'No reports saved yet',
-                message: 'Complete an inspection to generate reports.',
-                icon: AppIcons.reports,
-              )
-            : Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        hintText: 'Search reports...',
-                        prefixIcon: Icon(AppIcons.search, color: AppColors.primary),
-                      ),
-                    ),
+        ? const AppEmptyState(
+            title: 'No reports saved yet',
+            message: 'Complete an inspection to generate reports.',
+            icon: AppIcons.reports,
+          )
+        : Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    hintText: 'Search reports...',
+                    prefixIcon: Icon(AppIcons.search, color: AppColors.primary),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _filtered.length,
-                      itemBuilder: (context, index) {
-                        final report = _filtered[index];
-                        final project = report.bridgeData?.projectName ?? '—';
-                        final chainage = report.bridgeData?.chainages ?? report.location;
-                        final bridge = report.bridgeData?.bridgeId != null
-                            ? 'Bridge ${report.bridgeData!.bridgeId}'
-                            : report.title;
-                        final date = report.timestamp.split('.').first;
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _filtered.length,
+                  itemBuilder: (context, index) {
+                    final report = _filtered[index];
+                    final project = report.bridgeData?.projectName ?? '—';
+                    final chainage =
+                        report.bridgeData?.chainages ?? report.location;
+                    final bridge = report.bridgeData?.bridgeId != null
+                        ? 'Bridge ${report.bridgeData!.bridgeId}'
+                        : report.title;
+                    final date = report.timestamp.split('.').first;
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: AppCard(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      bridge,
-                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.ink),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: AppCard(
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    bridge,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.ink,
                                     ),
                                   ),
-                                  const AppStatusBadge(label: 'Completed', tone: AppStatusTone.success),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              _meta('Project', project),
-                              _meta('Chainage', chainage),
-                              _meta('Bridge', bridge),
-                              _meta('Inspection Date', date),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => PdfService.generateAndDownloadSingleReport(report),
-                                      icon: const Icon(AppIcons.view, size: 16),
-                                      label: const Text('VIEW'),
-                                    ),
+                                ),
+                                const AppStatusBadge(
+                                  label: 'Completed',
+                                  tone: AppStatusTone.success,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            _meta('Project', project),
+                            _meta('Chainage', chainage),
+                            _meta('Bridge', bridge),
+                            _meta('Inspection Date', date),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        PdfService.generateAndDownloadSingleReport(
+                                          report,
+                                        ),
+                                    icon: const Icon(AppIcons.view, size: 16),
+                                    label: const Text('VIEW'),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => PdfService.generateAndDownloadSingleReport(report),
-                                      icon: const Icon(AppIcons.export, size: 16),
-                                      label: const Text('EXPORT'),
-                                    ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        PdfService.generateAndDownloadSingleReport(
+                                          report,
+                                        ),
+                                    icon: const Icon(AppIcons.export, size: 16),
+                                    label: const Text('EXPORT'),
                                   ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: () => _deleteOne(report),
-                                    icon: const Icon(AppIcons.delete, color: AppColors.danger),
-                                    tooltip: 'Delete',
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  onPressed: () => _deleteOne(report),
+                                  icon: const Icon(
+                                    AppIcons.delete,
+                                    color: AppColors.danger,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                  tooltip: 'Delete',
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
 
     if (widget.embedInShell) {
       return Column(
@@ -213,8 +247,18 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
               alignment: Alignment.centerRight,
               child: TextButton.icon(
                 onPressed: _clearAll,
-                icon: const Icon(Icons.delete_sweep_outlined, size: 16, color: AppColors.danger),
-                label: const Text('Clear all', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w700)),
+                icon: const Icon(
+                  Icons.delete_sweep_outlined,
+                  size: 16,
+                  color: AppColors.danger,
+                ),
+                label: const Text(
+                  'Clear all',
+                  style: TextStyle(
+                    color: AppColors.danger,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           Expanded(child: body),
@@ -226,11 +270,17 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: const Text('Inspection Reports'),
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
         actions: [
           if (_reports.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined, color: AppColors.danger),
+              icon: const Icon(
+                Icons.delete_sweep_outlined,
+                color: AppColors.danger,
+              ),
               onPressed: _clearAll,
               tooltip: 'Clear All Reports',
             ),
@@ -246,7 +296,16 @@ class _ReportsDashboardScreenState extends State<ReportsDashboardScreen> {
       child: Row(
         children: [
           SizedBox(width: 110, child: Text(label, style: AppTextStyles.label)),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.ink))),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
         ],
       ),
     );

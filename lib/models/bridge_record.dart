@@ -44,27 +44,28 @@ class BridgeRecord {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is BridgeRecord && other.bridgeId == bridgeId;
+      identical(this, other) ||
+      other is BridgeRecord && other.bridgeId == bridgeId;
 
   @override
   int get hashCode => bridgeId.hashCode;
 
   Map<String, dynamic> toJson() => {
-        'bridgeId': bridgeId,
-        'projectName': projectName,
-        'chainage': chainage,
-        'bridgeNo': bridgeNo,
-        'bridgeSide': bridgeSide,
-        'latitude': latitude,
-        'longitude': longitude,
-        'totalNoOfSpan': totalNoOfSpan,
-        'typeOfBridge': typeOfBridge,
-        'structuralForm': structuralForm,
-        'materialOfConstruction': materialOfConstruction,
-        'widthOfBridge': widthOfBridge,
-        'lengthOfBridge': lengthOfBridge,
-        'heightOfBridge': heightOfBridge,
-      };
+    'bridgeId': bridgeId,
+    'projectName': projectName,
+    'chainage': chainage,
+    'bridgeNo': bridgeNo,
+    'bridgeSide': bridgeSide,
+    'latitude': latitude,
+    'longitude': longitude,
+    'totalNoOfSpan': totalNoOfSpan,
+    'typeOfBridge': typeOfBridge,
+    'structuralForm': structuralForm,
+    'materialOfConstruction': materialOfConstruction,
+    'widthOfBridge': widthOfBridge,
+    'lengthOfBridge': lengthOfBridge,
+    'heightOfBridge': heightOfBridge,
+  };
 
   factory BridgeRecord.fromJson(Map<String, dynamic> json) {
     return BridgeRecord(

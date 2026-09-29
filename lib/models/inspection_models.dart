@@ -5,16 +5,15 @@ class ProjectRecord {
   final String databaseName;
   final String displayName;
 
-  const ProjectRecord({
-    required this.databaseName,
-    required this.displayName,
-  });
+  const ProjectRecord({required this.databaseName, required this.displayName});
 
   /// Excludes demo projects (such as "Aasam") and converts raw database project names into UI project records.
   static List<ProjectRecord> fromDatabaseProjects(List<String> rawProjects) {
     final validRawProjects = rawProjects.where((raw) {
       final lower = raw.trim().toLowerCase();
-      return lower != 'aasam' && !lower.startsWith('aasam') && !lower.contains('aasam');
+      return lower != 'aasam' &&
+          !lower.startsWith('aasam') &&
+          !lower.contains('aasam');
     }).toList();
 
     final Map<String, String> rawToDisplay = {};
@@ -43,10 +42,15 @@ class ProjectRecord {
     final lower = trimmed.toLowerCase();
 
     // Known project mappings based on section names
-    if (lower.contains('agra') && (lower.contains('by- pass') || lower.contains('by pass') || lower.contains('bypass'))) {
+    if (lower.contains('agra') &&
+        (lower.contains('by- pass') ||
+            lower.contains('by pass') ||
+            lower.contains('bypass'))) {
       return 'Agra-Bypass Section';
     }
-    if (lower.contains('swaroopganj') || lower.contains('abu road-swaroopganj') || lower.contains('abu road - swaroopganj')) {
+    if (lower.contains('swaroopganj') ||
+        lower.contains('abu road-swaroopganj') ||
+        lower.contains('abu road - swaroopganj')) {
       return 'Abu Road-Swaroopganj Section';
     }
     if (lower.contains('chittorgarh')) {
@@ -106,7 +110,10 @@ class ProjectRecord {
 
   static String _disambiguate(String raw, String currentDisp) {
     // Try to extract NH highway number (e.g. NH-44, NH-27)
-    final nhMatch = RegExp(r'NH-[0-9A-Z]+', caseSensitive: false).firstMatch(raw);
+    final nhMatch = RegExp(
+      r'NH-[0-9A-Z]+',
+      caseSensitive: false,
+    ).firstMatch(raw);
     if (nhMatch != null) {
       return '$currentDisp (${nhMatch.group(0)!.toUpperCase()})';
     }
@@ -149,7 +156,8 @@ class StructureTypeRecord {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is StructureTypeRecord && other.code == code;
+      identical(this, other) ||
+      other is StructureTypeRecord && other.code == code;
 
   @override
   int get hashCode => code.hashCode;
@@ -179,7 +187,12 @@ class BoundingBox {
   final double x2;
   final double y2;
 
-  BoundingBox({required this.x1, required this.y1, required this.x2, required this.y2});
+  BoundingBox({
+    required this.x1,
+    required this.y1,
+    required this.x2,
+    required this.y2,
+  });
 
   /// Parses percentage coordinates (0–100) of the FULL original image.
   /// Returns null when missing/invalid. Never invents a default box.
@@ -238,8 +251,10 @@ class DistressIssue {
   final double? volume;
   final String? quantityUnit;
   final double? quantityValue;
+
   /// Normalized 0–1 confidence used by existing UI.
   final double confidence;
+
   /// Percentage box (0–100) of the full source image, or null if unavailable/invalid.
   final BoundingBox? boundingBox;
   final List<Point2D>? segmentationPath;
@@ -261,7 +276,9 @@ class DistressIssue {
   });
 
   static double _normalizeConfidence(dynamic raw) {
-    final v = raw is num ? raw.toDouble() : double.tryParse(raw?.toString() ?? '');
+    final v = raw is num
+        ? raw.toDouble()
+        : double.tryParse(raw?.toString() ?? '');
     if (v == null || !v.isFinite) return 0.0;
     if (v > 1.0) return (v / 100.0).clamp(0.0, 1.0);
     return v.clamp(0.0, 1.0);
@@ -271,7 +288,8 @@ class DistressIssue {
     return DistressIssue(
       elementName: json['elementName'] as String?,
       type: json['type'] as String? ?? 'crack',
-      description: json['description'] as String? ??
+      description:
+          json['description'] as String? ??
           json['recommendation']?.toString() ??
           '',
       depth: json['depth']?.toString() ?? '0.01',
@@ -320,11 +338,13 @@ class ImageAnalysis {
   factory ImageAnalysis.fromJson(Map<String, dynamic> json) {
     return ImageAnalysis(
       summary: json['summary'] as String? ?? '',
-      issues: (json['issues'] as List<dynamic>?)
+      issues:
+          (json['issues'] as List<dynamic>?)
               ?.map((e) => DistressIssue.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      recommendations: (json['recommendations'] as List<dynamic>?)
+      recommendations:
+          (json['recommendations'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -341,8 +361,10 @@ class ImageAnalysis {
 class ElementFormData {
   String elementName;
   String description;
+
   /// Subtype labels when a safe DB master exists. Empty for now.
   List<String> elementTypes;
+
   /// Bearing metadata when schema supports it. Empty for now.
   Map<String, String> bearingMetadata;
 
@@ -351,20 +373,22 @@ class ElementFormData {
     this.description = '',
     List<String>? elementTypes,
     Map<String, String>? bearingMetadata,
-  })  : elementTypes = elementTypes ?? <String>[],
-        bearingMetadata = bearingMetadata ?? <String, String>{};
+  }) : elementTypes = elementTypes ?? <String>[],
+       bearingMetadata = bearingMetadata ?? <String, String>{};
 
   factory ElementFormData.fromJson(Map<String, dynamic> json) {
     return ElementFormData(
       elementName: json['elementName'] as String? ?? '',
-      description: json['description'] as String? ??
+      description:
+          json['description'] as String? ??
           json['element_descriptions'] as String? ??
           '',
-      elementTypes: (json['elementTypes'] as List<dynamic>? ??
-              json['element_types'] as List<dynamic>? ??
-              const [])
-          .map((e) => e.toString())
-          .toList(),
+      elementTypes:
+          (json['elementTypes'] as List<dynamic>? ??
+                  json['element_types'] as List<dynamic>? ??
+                  const [])
+              .map((e) => e.toString())
+              .toList(),
       bearingMetadata: Map<String, String>.from(
         (json['bearingMetadata'] as Map?)?.map(
               (k, v) => MapEntry(k.toString(), v.toString()),
@@ -393,6 +417,7 @@ class BridgeFormData {
   final String projectName;
   final String chainages;
   final int? bridgeId;
+  final int? bridgeInspectionId;
   final String? bridgeNo;
   final String? bridgeSide;
   final String? bridgeType;
@@ -413,6 +438,7 @@ class BridgeFormData {
     this.projectName = '',
     required this.chainages,
     this.bridgeId,
+    this.bridgeInspectionId,
     this.bridgeNo,
     this.bridgeSide,
     this.bridgeType,
@@ -435,6 +461,7 @@ class BridgeFormData {
       projectName: json['projectName'] as String? ?? '',
       chainages: json['chainages'] as String? ?? '',
       bridgeId: (json['bridgeId'] as num?)?.toInt(),
+      bridgeInspectionId: (json['bridgeInspectionId'] as num?)?.toInt(),
       bridgeNo: json['bridgeNo'] as String?,
       bridgeSide: json['bridgeSide'] as String?,
       bridgeType: json['bridgeType'] as String?,
@@ -449,7 +476,8 @@ class BridgeFormData {
       typeOfSuperstructure: json['typeOfSuperstructure'] as String? ?? '',
       rcPscMembers: json['rcPscMembers'] as String?,
       steelMembers: json['steelMembers'] as String?,
-      elements: (json['elements'] as List<dynamic>?)
+      elements:
+          (json['elements'] as List<dynamic>?)
               ?.map((e) => ElementFormData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -460,6 +488,7 @@ class BridgeFormData {
     'projectName': projectName,
     'chainages': chainages,
     'bridgeId': bridgeId,
+    'bridgeInspectionId': bridgeInspectionId,
     'bridgeNo': bridgeNo,
     'bridgeSide': bridgeSide,
     'bridgeType': bridgeType,
@@ -478,6 +507,181 @@ class BridgeFormData {
   };
 }
 
+/// Represents an AI-detected distress record to be persisted into MySQL `database_Bms.bridge_inspection_distress`.
+class BridgeInspectionDistressEntry {
+  final int bridgeInspectionId;
+  final String tableType;
+  final String distressType;
+  final String? nameOfSpan;
+  final String? fieldType;
+  final double distressLength;
+  final double distressWidth;
+  final double distressDepth;
+  final int? distressNos;
+  final double distanceOfDistressX;
+  final double distanceOfDistressY;
+  final int abutmentA1;
+  final int abutmentA2;
+  final int piers;
+  final int spans;
+  final int foundation;
+  final int expansion;
+  final int lhsDistress;
+  final int rhsDistress;
+  final int createdBy;
+  final String createdOn;
+  final String? repairMethodology;
+  final String? images;
+
+  const BridgeInspectionDistressEntry({
+    required this.bridgeInspectionId,
+    required this.tableType,
+    required this.distressType,
+    this.nameOfSpan,
+    this.fieldType,
+    this.distressLength = 0.0,
+    this.distressWidth = 0.0,
+    this.distressDepth = 0.0,
+    this.distressNos,
+    this.distanceOfDistressX = 0.0,
+    this.distanceOfDistressY = 0.0,
+    this.abutmentA1 = 0,
+    this.abutmentA2 = 0,
+    this.piers = 0,
+    this.spans = 0,
+    this.foundation = 0,
+    this.expansion = 0,
+    this.lhsDistress = 0,
+    this.rhsDistress = 0,
+    required this.createdBy,
+    required this.createdOn,
+    this.repairMethodology,
+    this.images,
+  });
+
+  /// Factory helper that maps actual domain model fields into database columns.
+  static BridgeInspectionDistressEntry fromIssueAndBridgeData({
+    required DistressIssue issue,
+    required BridgeFormData bridgeData,
+    required int bridgeInspectionId,
+    required int createdByUid,
+    String? imageIdentifier,
+  }) {
+    // Derive structural flags from element name
+    final elName =
+        (issue.elementName ??
+                (bridgeData.elements.isNotEmpty
+                    ? bridgeData.elements.first.elementName
+                    : ''))
+            .toLowerCase();
+
+    int isAbutmentA1 = 0;
+    int isAbutmentA2 = 0;
+    int isPiers = 0;
+    int isSpans = 0;
+    int isFoundation = 0;
+    int isExpansion = 0;
+
+    if (elName.contains('abutment')) {
+      if (elName.contains('foundation')) {
+        isFoundation = 1;
+      } else if (elName.contains('a2')) {
+        isAbutmentA2 = 1;
+      } else {
+        isAbutmentA1 = 1;
+      }
+    } else if (elName.contains('pier')) {
+      if (elName.contains('foundation')) {
+        isFoundation = 1;
+      } else {
+        isPiers = 1;
+      }
+    } else if (elName.contains('span') ||
+        elName.contains('girder') ||
+        elName.contains('superstructure')) {
+      isSpans = 1;
+    } else if (elName.contains('expansion')) {
+      isExpansion = 1;
+    } else if (elName.contains('foundation')) {
+      isFoundation = 1;
+    } else {
+      isSpans = 1;
+    }
+
+    // Derive LHS / RHS distress flags from bridge side metadata
+    final side = (bridgeData.bridgeSide ?? '').toUpperCase();
+    int lhs = 0;
+    int rhs = 0;
+    if (side.contains('LHS') || side == 'L') {
+      lhs = 1;
+    }
+    if (side.contains('RHS') || side == 'R') {
+      rhs = 1;
+    }
+    if (lhs == 0 && rhs == 0 && side.contains('BOTH')) {
+      lhs = 1;
+      rhs = 1;
+    }
+
+    // Determine table_type and field_type from element & distress categorization
+    String tableType = 'superstructure';
+    if (isAbutmentA1 == 1 ||
+        isAbutmentA2 == 1 ||
+        isPiers == 1 ||
+        isFoundation == 1) {
+      tableType = 'substructure';
+    } else if (elName.contains('approach') || elName.contains('pavement')) {
+      tableType = 'approaches';
+    }
+
+    final dType = issue.type.toLowerCase();
+    String fieldType = 'condition_distress';
+    if (dType.contains('crack')) {
+      fieldType = 'crack_distress';
+    } else if (dType.contains('spall')) {
+      fieldType = 'spalling_distress';
+    } else if (dType.contains('corros') || dType.contains('steel')) {
+      fieldType = 'corrosion_distress';
+    } else if (dType.contains('honeycomb')) {
+      fieldType = 'honeycombing_distress';
+    } else if (dType.contains('efflor')) {
+      fieldType = 'efflorescence_distress';
+    }
+
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+
+    return BridgeInspectionDistressEntry(
+      bridgeInspectionId: bridgeInspectionId,
+      tableType: tableType,
+      distressType: issue.type,
+      nameOfSpan: bridgeData.span.isNotEmpty ? bridgeData.span : null,
+      fieldType: fieldType,
+      distressLength: double.tryParse(issue.length ?? '') ?? 0.0,
+      distressWidth: double.tryParse(issue.width ?? '') ?? 0.0,
+      distressDepth: double.tryParse(issue.depth) ?? 0.0,
+      distressNos: issue.quantityUnit == 'Nos'
+          ? (issue.quantityValue?.toInt() ?? 1)
+          : issue.quantityValue?.toInt(),
+      distanceOfDistressX: double.tryParse(bridgeData.distanceX) ?? 0.0,
+      distanceOfDistressY: double.tryParse(bridgeData.distanceY) ?? 0.0,
+      abutmentA1: isAbutmentA1,
+      abutmentA2: isAbutmentA2,
+      piers: isPiers,
+      spans: isSpans,
+      foundation: isFoundation,
+      expansion: isExpansion,
+      lhsDistress: lhs,
+      rhsDistress: rhs,
+      createdBy: createdByUid,
+      createdOn: today,
+      repairMethodology: issue.description.isNotEmpty
+          ? issue.description
+          : null,
+      images: imageIdentifier,
+    );
+  }
+}
+
 class BridgeElementResult {
   final String elementName;
   final int conditionRating;
@@ -494,6 +698,7 @@ class BridgeElementResult {
   final double scaffoldingCum;
   final String suggestedRnR;
   final bool testingRecommendation;
+
   /// Demo/Excel testing columns: UPV, RHT, HCP, CD, Core, Profoscope, Chemical Test, GPR.
   final Map<String, bool> testingOptions;
 
@@ -514,20 +719,21 @@ class BridgeElementResult {
     required this.suggestedRnR,
     required this.testingRecommendation,
     Map<String, bool>? testingOptions,
-  }) : testingOptions = testingOptions ??
-            {
-              for (final k in const [
-                'UPV',
-                'RHT',
-                'HCP',
-                'CD',
-                'Core',
-                'Profoscope',
-                'Chemical Test',
-                'GPR',
-              ])
-                k: false,
-            };
+  }) : testingOptions =
+           testingOptions ??
+           {
+             for (final k in const [
+               'UPV',
+               'RHT',
+               'HCP',
+               'CD',
+               'Core',
+               'Profoscope',
+               'Chemical Test',
+               'GPR',
+             ])
+               k: false,
+           };
 
   BridgeElementResult copyWith({
     String? elementName,
@@ -562,8 +768,10 @@ class BridgeElementResult {
       scaffoldingHeight: scaffoldingHeight ?? this.scaffoldingHeight,
       scaffoldingCum: scaffoldingCum ?? this.scaffoldingCum,
       suggestedRnR: suggestedRnR ?? this.suggestedRnR,
-      testingRecommendation: testingRecommendation ?? this.testingRecommendation,
-      testingOptions: testingOptions ?? Map<String, bool>.from(this.testingOptions),
+      testingRecommendation:
+          testingRecommendation ?? this.testingRecommendation,
+      testingOptions:
+          testingOptions ?? Map<String, bool>.from(this.testingOptions),
     );
   }
 
@@ -591,7 +799,8 @@ class BridgeElementResult {
     return BridgeElementResult(
       elementName: json['elementName'] as String? ?? 'Element',
       conditionRating: (json['conditionRating'] as num?)?.toInt() ?? 3,
-      levelOfSeverity: json['levelOfSeverity'] as String? ?? 'Short-Term Requirement',
+      levelOfSeverity:
+          json['levelOfSeverity'] as String? ?? 'Short-Term Requirement',
       distressLength: (json['distressLength'] as num?)?.toDouble(),
       distressWidth: (json['distressWidth'] as num?)?.toDouble(),
       distressThickness: (json['distressThickness'] as num?)?.toDouble(),
@@ -701,11 +910,14 @@ class Report {
 
   factory Report.fromJson(Map<String, dynamic> json) {
     return Report(
-      id: (json['id'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
+      id:
+          (json['id'] as num?)?.toInt() ??
+          DateTime.now().millisecondsSinceEpoch,
       title: json['title'] as String? ?? 'Inspection Report',
       description: json['description'] as String? ?? '',
       imageBase64: json['imageBase64'] as String?,
-      timestamp: json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
+      timestamp:
+          json['timestamp'] as String? ?? DateTime.now().toIso8601String(),
       metrics: json['metrics'] != null
           ? ReportMetrics.fromJson(json['metrics'] as Map<String, dynamic>)
           : ReportMetrics(
@@ -719,11 +931,13 @@ class Report {
             ),
       category: json['category'] as String? ?? 'Optimal',
       location: json['location'] as String? ?? 'Site A',
-      issues: (json['issues'] as List<dynamic>?)
+      issues:
+          (json['issues'] as List<dynamic>?)
               ?.map((e) => DistressIssue.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      recommendations: (json['recommendations'] as List<dynamic>?)
+      recommendations:
+          (json['recommendations'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],

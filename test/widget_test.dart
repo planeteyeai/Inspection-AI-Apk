@@ -9,7 +9,9 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('Login screen is shown at launch when there is no session', (WidgetTester tester) async {
+  testWidgets('Login screen is shown at launch when there is no session', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const ThermalAIBridgeApp());
     await tester.pump();
     await tester.pump();
@@ -19,7 +21,9 @@ void main() {
     expect(find.text('Login  →'), findsOneWidget);
   });
 
-  testWidgets('Login screen validates empty User ID', (WidgetTester tester) async {
+  testWidgets('Login screen validates empty User ID', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const ThermalAIBridgeApp());
     await tester.pump();
     await tester.pump();

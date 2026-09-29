@@ -69,7 +69,11 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
       );
 
       final bridgeResultsFuture = _bridgeFormData != null
-          ? GeminiService.analyzeBridgeInspection(bytes, 'image/jpeg', _bridgeFormData!.elements)
+          ? GeminiService.analyzeBridgeInspection(
+              bytes,
+              'image/jpeg',
+              _bridgeFormData!.elements,
+            )
           : Future.value(<BridgeElementResult>[]);
 
       final results = await Future.wait([analysisFuture, bridgeResultsFuture]);
@@ -85,7 +89,9 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to complete AI analysis. Please try again.')),
+        const SnackBar(
+          content: Text('Unable to complete AI analysis. Please try again.'),
+        ),
       );
     }
   }
@@ -162,12 +168,18 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
               destinations: const [
                 NavigationDestination(
                   icon: Icon(AppIcons.home),
-                  selectedIcon: Icon(AppIcons.homeActive, color: AppColors.primary),
+                  selectedIcon: Icon(
+                    AppIcons.homeActive,
+                    color: AppColors.primary,
+                  ),
                   label: 'Home',
                 ),
                 NavigationDestination(
                   icon: Icon(AppIcons.reports),
-                  selectedIcon: Icon(AppIcons.reportsActive, color: AppColors.primary),
+                  selectedIcon: Icon(
+                    AppIcons.reportsActive,
+                    color: AppColors.primary,
+                  ),
                   label: 'Reports',
                 ),
               ],
@@ -195,7 +207,9 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
                   fit: BoxFit.cover,
                   alignment: const Alignment(0, -0.2),
                   errorBuilder: (context, error, stackTrace) => Container(
-                    decoration: const BoxDecoration(gradient: AppColors.softGradient),
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.softGradient,
+                    ),
                   ),
                 ),
                 DecoratedBox(
@@ -245,7 +259,11 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
                         IconButton(
                           tooltip: 'Logout',
                           onPressed: widget.onLogout,
-                          icon: const Icon(AppIcons.logout, color: Colors.white, size: 20),
+                          icon: const Icon(
+                            AppIcons.logout,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                     ],
                   ),
@@ -258,10 +276,7 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
               child: Row(
                 children: [
-                  Text(
-                    _phaseTitle,
-                    style: AppTextStyles.screenTitle,
-                  ),
+                  Text(_phaseTitle, style: AppTextStyles.screenTitle),
                   const Spacer(),
                   if (_phase > 0)
                     TextButton(
@@ -351,7 +366,14 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: const Text('AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 22)),
+                  child: const Text(
+                    'AI',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 22,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(AppBrand.name, style: AppTextStyles.screenTitle),
@@ -369,9 +391,20 @@ class _InspectionMainScreenState extends State<InspectionMainScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       children: [
-                        const Icon(AppIcons.checkFilled, size: 16, color: AppColors.primary),
+                        const Icon(
+                          AppIcons.checkFilled,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 8),
-                        Text(s, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                        Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.ink,
+                          ),
+                        ),
                       ],
                     ),
                   ),

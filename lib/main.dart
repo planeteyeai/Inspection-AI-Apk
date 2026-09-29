@@ -75,7 +75,11 @@ class _AuthGateState extends State<AuthGate> {
                   alignment: Alignment.center,
                   child: const Text(
                     'A',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 22),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 22,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -83,7 +87,11 @@ class _AuthGateState extends State<AuthGate> {
                 const SizedBox(height: 14),
                 const Text(
                   'Loading session...',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.muted),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.muted,
+                  ),
                 ),
               ],
             ),

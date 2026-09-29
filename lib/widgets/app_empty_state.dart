@@ -26,10 +26,18 @@ class AppEmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 48, color: AppColors.border),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: AppTextStyles.screenTitle.copyWith(color: AppColors.muted)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.screenTitle.copyWith(color: AppColors.muted),
+            ),
             if (message != null) ...[
               const SizedBox(height: 6),
-              Text(message!, textAlign: TextAlign.center, style: AppTextStyles.muted),
+              Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.muted,
+              ),
             ],
           ],
         ),

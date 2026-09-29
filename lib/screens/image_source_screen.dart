@@ -43,7 +43,10 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? file = await _picker.pickImage(source: source, imageQuality: 85);
+      final XFile? file = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
       if (file != null) {
         final bytes = await file.readAsBytes();
         setState(() => _previewBytes = bytes);
@@ -51,7 +54,9 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to select image. Please try again.')),
+          const SnackBar(
+            content: Text('Unable to select image. Please try again.'),
+          ),
         );
       }
     }
@@ -77,18 +82,28 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
               color: AppColors.softBlue,
               child: Row(
                 children: [
-                  const Icon(AppIcons.place, size: 16, color: AppColors.primary),
+                  const Icon(
+                    AppIcons.place,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       [
-                        if (widget.bridgeData!.projectName.isNotEmpty) widget.bridgeData!.projectName,
+                        if (widget.bridgeData!.projectName.isNotEmpty)
+                          widget.bridgeData!.projectName,
                         widget.bridgeData!.chainages,
-                        if (widget.bridgeData!.bridgeId != null) 'ID ${widget.bridgeData!.bridgeId}',
+                        if (widget.bridgeData!.bridgeId != null)
+                          'ID ${widget.bridgeData!.bridgeId}',
                         widget.bridgeData!.span,
                       ].where((s) => s.trim().isNotEmpty).join(' · '),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryDark,
+                      ),
                     ),
                   ),
                 ],
@@ -115,13 +130,21 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(AppIcons.image, size: 40, color: AppColors.muted),
+                              Icon(
+                                AppIcons.image,
+                                size: 40,
+                                color: AppColors.muted,
+                              ),
                               SizedBox(height: 8),
                               Text('Image preview', style: AppTextStyles.muted),
                             ],
                           ),
                         )
-                      : Image.memory(_previewBytes!, fit: BoxFit.contain, width: double.infinity),
+                      : Image.memory(
+                          _previewBytes!,
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                        ),
                 ),
                 const SizedBox(height: 16),
                 const Text('DETECTION TARGET', style: AppTextStyles.label),
@@ -131,11 +154,18 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
                   items: kDetectionOptions.map((opt) {
                     return DropdownMenuItem(
                       value: opt['value'],
-                      child: Text(opt['label']!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      child: Text(
+                        opt['label']!,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     );
                   }).toList(),
                   onChanged: (val) {
-                    if (val != null) setState(() => _selectedDetectionTarget = val);
+                    if (val != null)
+                      setState(() => _selectedDetectionTarget = val);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -165,7 +195,9 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
                   label: 'Analyze with AI  →',
                   icon: AppIcons.aiAnalysis,
                   loading: _analyzing,
-                  onPressed: _previewBytes == null || _analyzing ? null : _analyze,
+                  onPressed: _previewBytes == null || _analyzing
+                      ? null
+                      : _analyze,
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -173,7 +205,13 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
                   child: TextButton.icon(
                     onPressed: widget.onBack,
                     icon: const Icon(AppIcons.back, size: 16),
-                    label: const Text('Back to inspection details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                    label: const Text(
+                      'Back to inspection details',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -200,15 +238,28 @@ class _ImageSourceScreenState extends State<ImageSourceScreen> {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.35),
+            ),
           ),
           child: Column(
             children: [
               Icon(icon, size: 26, color: AppColors.primary),
               const SizedBox(height: 10),
-              Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.ink)),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(fontSize: 10, color: AppColors.muted)),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 10, color: AppColors.muted),
+              ),
             ],
           ),
         ),

@@ -41,7 +41,8 @@ class SpanArrangementRecord {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is SpanArrangementRecord && other.spId == spId;
+      identical(this, other) ||
+      other is SpanArrangementRecord && other.spId == spId;
 
   @override
   int get hashCode => spId.hashCode;

@@ -68,7 +68,8 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
   String? _superstructureError;
 
   // Chainage search controller (search state is managed in _ChainagePickerSheet)
-  final TextEditingController _chainageSearchController = TextEditingController();
+  final TextEditingController _chainageSearchController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -178,7 +179,9 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       _locationError = null;
     });
     try {
-      final types = await DatabaseService.getStructureTypesForProject(projectName);
+      final types = await DatabaseService.getStructureTypesForProject(
+        projectName,
+      );
       if (!mounted) return;
       setState(() {
         _structureTypes = types;
@@ -214,20 +217,23 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         _superstructureOptions = options;
         _loadingSuperstructure = false;
         if (options.isEmpty) {
-          _superstructureError = 'No superstructure type options found in the database.';
+          _superstructureError =
+              'No superstructure type options found in the database.';
         }
       });
     } on AuthConnectionException {
       if (!mounted) return;
       setState(() {
         _loadingSuperstructure = false;
-        _superstructureError = 'Unable to load superstructure options. Please try again.';
+        _superstructureError =
+            'Unable to load superstructure options. Please try again.';
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _loadingSuperstructure = false;
-        _superstructureError = 'Unable to load superstructure options. Please try again.';
+        _superstructureError =
+            'Unable to load superstructure options. Please try again.';
       });
     }
   }
@@ -244,7 +250,9 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
     await _loadStructureTypes(project.databaseName);
   }
 
-  Future<void> _onStructureTypeChanged(StructureTypeRecord? structureType) async {
+  Future<void> _onStructureTypeChanged(
+    StructureTypeRecord? structureType,
+  ) async {
     setState(() {
       _selectedStructureType = structureType;
       _locationError = null;
@@ -255,16 +263,18 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
 
     setState(() => _loadingChainages = true);
     try {
-      final chainages = await DatabaseService.getChainagesForProjectAndStructureType(
-        _selectedProject!.databaseName,
-        structureType.code,
-      );
+      final chainages =
+          await DatabaseService.getChainagesForProjectAndStructureType(
+            _selectedProject!.databaseName,
+            structureType.code,
+          );
       if (!mounted) return;
       setState(() {
         _chainages = chainages;
         _loadingChainages = false;
         if (chainages.isEmpty) {
-          _locationError = 'No chainages found for this project and structure type.';
+          _locationError =
+              'No chainages found for this project and structure type.';
         }
       });
     } on AuthConnectionException {
@@ -289,15 +299,20 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       _clearBridgeDependentState();
     });
 
-    if (_selectedProject == null || _selectedStructureType == null || chainage == null || chainage.isEmpty) return;
+    if (_selectedProject == null ||
+        _selectedStructureType == null ||
+        chainage == null ||
+        chainage.isEmpty)
+      return;
 
     setState(() => _loadingBridges = true);
     try {
-      final bridges = await DatabaseService.getBridgesForProjectStructureTypeAndChainage(
-        _selectedProject!.databaseName,
-        _selectedStructureType!.code,
-        chainage,
-      );
+      final bridges =
+          await DatabaseService.getBridgesForProjectStructureTypeAndChainage(
+            _selectedProject!.databaseName,
+            _selectedStructureType!.code,
+            chainage,
+          );
       if (!mounted) return;
 
       BridgeRecord? autoSelected;
@@ -309,7 +324,8 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         _bridges = bridges;
         _loadingBridges = false;
         if (bridges.isEmpty) {
-          _locationError = 'No bridge records found for this project, structure type and chainage.';
+          _locationError =
+              'No bridge records found for this project, structure type and chainage.';
           _selectedBridge = null;
         } else {
           _selectedBridge = autoSelected;
@@ -368,9 +384,11 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
     try {
       info = await DatabaseService.getSuperstructureBridgeInfo(bridgeId);
     } on AuthConnectionException {
-      superErr = 'Unable to load bridge superstructure flags. Please try again.';
+      superErr =
+          'Unable to load bridge superstructure flags. Please try again.';
     } catch (_) {
-      superErr = 'Unable to load bridge superstructure flags. Please try again.';
+      superErr =
+          'Unable to load bridge superstructure flags. Please try again.';
     }
 
     if (!mounted) return;
@@ -382,7 +400,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       selectedSpan = null;
     } else if (spans.length == 1) {
       selectedSpan = spans.first;
-      selectedSuperstructure = _resolveSuperstructureForSpan(selectedSpan, selectedSuperstructure);
+      selectedSuperstructure = _resolveSuperstructureForSpan(
+        selectedSpan,
+        selectedSuperstructure,
+      );
     }
 
     setState(() {
@@ -391,15 +412,21 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       _superstructureBridgeInfo = info;
       _selectedSuperstructure = selectedSuperstructure;
       _loadingSpans = false;
-      _spanError = spanErr ??
-          (spans.isEmpty ? 'No span arrangement records found for this bridge.' : null);
+      _spanError =
+          spanErr ??
+          (spans.isEmpty
+              ? 'No span arrangement records found for this bridge.'
+              : null);
       if (superErr != null) {
         _superstructureError = superErr;
       }
     });
   }
 
-  String? _resolveSuperstructureForSpan(SpanArrangementRecord span, String? current) {
+  String? _resolveSuperstructureForSpan(
+    SpanArrangementRecord span,
+    String? current,
+  ) {
     final suggested = span.suggestedSuperstructureLabel;
     if (suggested == null) return current;
 
@@ -424,7 +451,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       _selectedSpan = span;
       _spanError = null;
       if (span != null) {
-        _selectedSuperstructure = _resolveSuperstructureForSpan(span, _selectedSuperstructure);
+        _selectedSuperstructure = _resolveSuperstructureForSpan(
+          span,
+          _selectedSuperstructure,
+        );
       }
     });
   }
@@ -443,23 +473,32 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       return;
     }
     if (_selectedBridge == null) {
-      setState(() => _locationError = _bridges.length > 1
-          ? 'Please select the correct bridge record.'
-          : 'Please wait for bridge selection to complete.');
+      setState(
+        () => _locationError = _bridges.length > 1
+            ? 'Please select the correct bridge record.'
+            : 'Please wait for bridge selection to complete.',
+      );
       return;
     }
     if (_selectedSpan == null) {
-      setState(() => _spanError = _spans.isEmpty
-          ? 'No span arrangement records found for this bridge.'
-          : 'Please select a span.');
+      setState(
+        () => _spanError = _spans.isEmpty
+            ? 'No span arrangement records found for this bridge.'
+            : 'Please select a span.',
+      );
       return;
     }
-    if (_selectedSuperstructure == null || _selectedSuperstructure!.trim().isEmpty) {
-      setState(() => _superstructureError = 'Please select Type of Superstructure.');
+    if (_selectedSuperstructure == null ||
+        _selectedSuperstructure!.trim().isEmpty) {
+      setState(
+        () => _superstructureError = 'Please select Type of Superstructure.',
+      );
       return;
     }
     if (_selectedElementNames.isEmpty) {
-      setState(() => _elementsError = 'Please select at least one structural element.');
+      setState(
+        () => _elementsError = 'Please select at least one structural element.',
+      );
       return;
     }
 
@@ -480,7 +519,8 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         spanLength: span.spanLength,
         span: span.label,
         typeOfSuperstructure: _selectedSuperstructure!,
-        rcPscMembers: _superstructureBridgeInfo?.reinforcedConcreteAndPrestressedConcreteMembers,
+        rcPscMembers: _superstructureBridgeInfo
+            ?.reinforcedConcreteAndPrestressedConcreteMembers,
         steelMembers: _superstructureBridgeInfo?.checkSteelMembers,
         elements: _buildSelectedElements(),
       );
@@ -509,13 +549,13 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                   if (_loadingProjects)
                     _loadingIndicator()
                   else
-                  _buildDropdown<ProjectRecord>(
-                    value: _selectedProject,
-                    hint: 'Select Project',
-                    items: _projects,
-                    itemLabel: (p) => p.displayName,
-                    onChanged: _onProjectChanged,
-                  ),
+                    _buildDropdown<ProjectRecord>(
+                      value: _selectedProject,
+                      hint: 'Select Project',
+                      items: _projects,
+                      itemLabel: (p) => p.displayName,
+                      onChanged: _onProjectChanged,
+                    ),
                   const SizedBox(height: 16),
 
                   _buildLabel('STRUCTURE TYPE', required: true),
@@ -527,14 +567,17 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                       hint: _selectedProject == null
                           ? 'Select a project first'
                           : _structureTypes.isEmpty
-                              ? 'No structure types available'
-                              : 'Select Structure Type',
+                          ? 'No structure types available'
+                          : 'Select Structure Type',
                       items: _structureTypes,
                       itemLabel: (t) => t.name,
-                      enabled: _selectedProject != null &&
+                      enabled:
+                          _selectedProject != null &&
                           !_loadingStructureTypes &&
                           _structureTypes.isNotEmpty,
-                      onChanged: _selectedProject == null ? null : _onStructureTypeChanged,
+                      onChanged: _selectedProject == null
+                          ? null
+                          : _onStructureTypeChanged,
                     ),
                   if (_selectedProject != null &&
                       !_loadingStructureTypes &&
@@ -542,7 +585,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'No structure types available for this project.',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -558,7 +604,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'No chainages available for this structure type.',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -585,7 +634,11 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                   if (_locationError != null) ...[
                     Text(
                       _locationError!,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFB91C1C)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFB91C1C),
+                      ),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -607,8 +660,12 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     _loadingIndicator()
                   else if (_spans.isEmpty)
                     Text(
-                      _spanError ?? 'No span arrangement records found for this bridge.',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                      _spanError ??
+                          'No span arrangement records found for this bridge.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade700,
+                      ),
                     )
                   else ...[
                     _buildDropdown<SpanArrangementRecord>(
@@ -625,14 +682,26 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                   ],
                   if (_spanError != null && _spans.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Text(_spanError!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFB91C1C))),
+                    Text(
+                      _spanError!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFB91C1C),
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 16),
 
                   const SizedBox(height: 8),
                   const Text(
                     'SUPERSTRUCTURE',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.4, color: AppColors.ink),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.4,
+                      color: AppColors.ink,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   _buildLabel('TYPE OF SUPERSTRUCTURE', required: true),
@@ -640,19 +709,26 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     _loadingIndicator()
                   else
                     _buildDropdown<String>(
-                      value: _selectedSuperstructure != null &&
-                              _effectiveSuperstructureOptions.contains(_selectedSuperstructure)
+                      value:
+                          _selectedSuperstructure != null &&
+                              _effectiveSuperstructureOptions.contains(
+                                _selectedSuperstructure,
+                              )
                           ? _selectedSuperstructure
                           : null,
-                      hint: bridgeSelected ? 'Select Type of Superstructure' : 'Select a bridge first',
+                      hint: bridgeSelected
+                          ? 'Select Type of Superstructure'
+                          : 'Select a bridge first',
                       items: _effectiveSuperstructureOptions,
                       itemLabel: (s) => s,
-                      enabled: bridgeSelected && _effectiveSuperstructureOptions.isNotEmpty,
+                      enabled:
+                          bridgeSelected &&
+                          _effectiveSuperstructureOptions.isNotEmpty,
                       onChanged: bridgeSelected
                           ? (val) => setState(() {
-                                _selectedSuperstructure = val;
-                                _superstructureError = null;
-                              })
+                              _selectedSuperstructure = val;
+                              _superstructureError = null;
+                            })
                           : null,
                     ),
                   if (_superstructureBridgeInfo != null) ...[
@@ -663,7 +739,11 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _superstructureError!,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.danger),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.danger,
+                      ),
                     ),
                   ],
                 ],
@@ -688,7 +768,9 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: selected ? AppColors.primaryDark : AppColors.ink,
+                            color: selected
+                                ? AppColors.primaryDark
+                                : AppColors.ink,
                           ),
                         ),
                         selected: selected,
@@ -696,7 +778,11 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                         selectedColor: AppColors.lightCyan,
                         checkmarkColor: AppColors.primary,
                         backgroundColor: AppColors.surface,
-                        side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
+                        side: BorderSide(
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.border,
+                        ),
                       );
                     }).toList(),
                   ),
@@ -704,7 +790,12 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     const SizedBox(height: 14),
                     const Text(
                       'SELECTED ELEMENTS',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.muted, letterSpacing: 0.5),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.muted,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -712,7 +803,14 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                       runSpacing: 8,
                       children: _selectedElementNames.map((name) {
                         return InputChip(
-                          label: Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryDark)),
+                          label: Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryDark,
+                            ),
+                          ),
                           onDeleted: () => _toggleStructuralElement(name),
                           deleteIconColor: AppColors.muted,
                           backgroundColor: AppColors.lightCyan,
@@ -735,9 +833,19 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                           children: [
                             Row(
                               children: [
-                                const Icon(AppIcons.checkFilled, size: 14, color: AppColors.primary),
+                                const Icon(
+                                  AppIcons.checkFilled,
+                                  size: 14,
+                                  color: AppColors.primary,
+                                ),
                                 const SizedBox(width: 6),
-                                Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -745,7 +853,9 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                               controller: _descriptionControllerFor(name),
                               maxLines: 3,
                               minLines: 2,
-                              decoration: _inputDecoration(hint: 'Description for $name'),
+                              decoration: _inputDecoration(
+                                hint: 'Description for $name',
+                              ),
                               style: const TextStyle(fontSize: 11),
                             ),
                           ],
@@ -756,14 +866,21 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'No structural elements selected yet.',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ],
                   if (_elementsError != null) ...[
                     const SizedBox(height: 8),
                     Text(
                       _elementsError!,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.danger),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.danger,
+                      ),
                     ),
                   ],
                 ],
@@ -785,7 +902,9 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
   List<String> get _effectiveSuperstructureOptions {
     final options = List<String>.from(_superstructureOptions);
     final suggested = _selectedSpan?.suggestedSuperstructureLabel;
-    if (suggested != null && suggested.isNotEmpty && !options.contains(suggested)) {
+    if (suggested != null &&
+        suggested.isNotEmpty &&
+        !options.contains(suggested)) {
       options.add(suggested);
     }
     return options;
@@ -798,7 +917,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         child: SizedBox(
           width: 22,
           height: 22,
-          child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.primary),
+          child: CircularProgressIndicator(
+            strokeWidth: 2.4,
+            color: AppColors.primary,
+          ),
         ),
       ),
     );
@@ -806,14 +928,17 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
 
   /// Chainage selector with live search in a bottom sheet.
   Widget _buildChainageSelector() {
-    final enabled = _selectedStructureType != null && !_loadingChainages && _chainages.isNotEmpty;
+    final enabled =
+        _selectedStructureType != null &&
+        !_loadingChainages &&
+        _chainages.isNotEmpty;
     final hint = _selectedProject == null
         ? 'Select a project first'
         : _selectedStructureType == null
-            ? 'Select a structure type first'
-            : _chainages.isEmpty
-                ? 'No chainages available'
-                : 'Select Chainage';
+        ? 'Select a structure type first'
+        : _chainages.isEmpty
+        ? 'No chainages available'
+        : 'Select Chainage';
 
     return GestureDetector(
       onTap: enabled
@@ -852,8 +977,12 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: _selectedChainage != null ? FontWeight.w600 : FontWeight.w400,
-                  color: _selectedChainage != null ? Colors.black87 : Colors.grey.shade500,
+                  fontWeight: _selectedChainage != null
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                  color: _selectedChainage != null
+                      ? Colors.black87
+                      : Colors.grey.shade500,
                 ),
               ),
             ),
@@ -876,13 +1005,30 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SPAN DETAILS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey.shade700, letterSpacing: 0.6)),
+          Text(
+            'SPAN DETAILS',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Colors.grey.shade700,
+              letterSpacing: 0.6,
+            ),
+          ),
           const SizedBox(height: 8),
           _summaryLine('Span', span.shortLabel),
           _summaryLine('sp_id', '${span.spId}'),
-          _summaryLine('Type', (span.spanType ?? '').isEmpty ? 'N/A' : span.spanType!),
-          _summaryLine('Material', (span.spanMaterial ?? '').isEmpty ? 'N/A' : span.spanMaterial!),
-          _summaryLine('Length', (span.spanLength ?? '').isEmpty ? 'N/A' : span.spanLength!),
+          _summaryLine(
+            'Type',
+            (span.spanType ?? '').isEmpty ? 'N/A' : span.spanType!,
+          ),
+          _summaryLine(
+            'Material',
+            (span.spanMaterial ?? '').isEmpty ? 'N/A' : span.spanMaterial!,
+          ),
+          _summaryLine(
+            'Length',
+            (span.spanLength ?? '').isEmpty ? 'N/A' : span.spanLength!,
+          ),
         ],
       ),
     );
@@ -902,7 +1048,12 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         children: [
           Text(
             'BRIDGE SUPERSTRUCTURE FLAGS (DB)',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.teal.shade800, letterSpacing: 0.6),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Colors.teal.shade800,
+              letterSpacing: 0.6,
+            ),
           ),
           const SizedBox(height: 8),
           _summaryLine(
@@ -930,15 +1081,31 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         children: [
           const Text(
             'BRIDGE INFORMATION',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.primaryDark, letterSpacing: 0.6),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: AppColors.primaryDark,
+              letterSpacing: 0.6,
+            ),
           ),
           const SizedBox(height: 8),
-          _summaryLine('Bridge No', (bridge.bridgeNo ?? '').isEmpty ? 'N/A' : bridge.bridgeNo!),
-          _summaryLine('Type', (bridge.typeOfBridge ?? '').isEmpty ? 'N/A' : bridge.typeOfBridge!),
-          _summaryLine('Side', (bridge.bridgeSide ?? '').isEmpty ? 'N/A' : bridge.bridgeSide!),
+          _summaryLine(
+            'Bridge No',
+            (bridge.bridgeNo ?? '').isEmpty ? 'N/A' : bridge.bridgeNo!,
+          ),
+          _summaryLine(
+            'Type',
+            (bridge.typeOfBridge ?? '').isEmpty ? 'N/A' : bridge.typeOfBridge!,
+          ),
+          _summaryLine(
+            'Side',
+            (bridge.bridgeSide ?? '').isEmpty ? 'N/A' : bridge.bridgeSide!,
+          ),
           _summaryLine(
             'Spans',
-            _spans.isNotEmpty ? '${_spans.length}' : (bridge.totalNoOfSpan?.toString() ?? 'N/A'),
+            _spans.isNotEmpty
+                ? '${_spans.length}'
+                : (bridge.totalNoOfSpan?.toString() ?? 'N/A'),
           ),
         ],
       ),
@@ -953,10 +1120,24 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         children: [
           SizedBox(
             width: 88,
-            child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade700)),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade700,
+              ),
+            ),
           ),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF0F172A),
+              ),
+            ),
           ),
         ],
       ),
@@ -986,7 +1167,11 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
         child: DropdownButton<T>(
           value: effectiveValue,
           isExpanded: true,
-          hint: Text(hint, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+          hint: Text(
+            hint,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+          ),
           icon: const Icon(Icons.arrow_drop_down),
           items: items.map((item) {
             return DropdownMenuItem<T>(
@@ -994,7 +1179,10 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
               child: Text(
                 itemLabel(item),
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             );
           }).toList(),
@@ -1009,8 +1197,20 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey.shade700, letterSpacing: 0.8)),
-          if (required) const Text(' *', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: Colors.grey.shade700,
+              letterSpacing: 0.8,
+            ),
+          ),
+          if (required)
+            const Text(
+              ' *',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
         ],
       ),
     );
@@ -1023,9 +1223,18 @@ class _BridgeFormScreenState extends State<BridgeFormScreen> {
       filled: true,
       fillColor: Colors.grey.shade50,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 1.4)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+      ),
     );
   }
 }
@@ -1069,9 +1278,7 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
       _query = q;
       _filtered = q.isEmpty
           ? widget.chainages
-          : widget.chainages
-              .where((c) => c.toLowerCase().contains(q))
-              .toList();
+          : widget.chainages.where((c) => c.toLowerCase().contains(q)).toList();
     });
   }
 
@@ -1117,7 +1324,10 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
                     const Spacer(),
                     Text(
                       '${widget.chainages.length} available',
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -1131,19 +1341,33 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
                   style: const TextStyle(fontSize: 12),
                   decoration: InputDecoration(
                     hintText: 'Search chainage...',
-                    hintStyle: TextStyle(fontSize: 12, color: Colors.grey.shade400),
-                    prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.primary),
+                    hintStyle: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade400,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      size: 18,
+                      color: AppColors.primary,
+                    ),
                     suffixIcon: _query.isNotEmpty
                         ? GestureDetector(
                             onTap: () {
                               widget.searchController.clear();
                             },
-                            child: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
+                            child: Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.grey.shade500,
+                            ),
                           )
                         : null,
                     filled: true,
                     fillColor: Colors.grey.shade50,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Colors.grey.shade200),
@@ -1154,7 +1378,10 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.4,
+                      ),
                     ),
                   ),
                 ),
@@ -1168,7 +1395,10 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
                           padding: const EdgeInsets.all(24),
                           child: Text(
                             'No matching chainage found.',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                         ),
                       )
@@ -1177,18 +1407,27 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
                         itemCount: _filtered.length,
                         itemBuilder: (context, index) {
                           final chainage = _filtered[index];
-                          final isSelected = chainage == widget.selectedChainage;
+                          final isSelected =
+                              chainage == widget.selectedChainage;
                           return ListTile(
                             title: Text(
                               chainage,
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                color: isSelected ? AppColors.primary : Colors.black87,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Colors.black87,
                               ),
                             ),
                             trailing: isSelected
-                                ? const Icon(Icons.check_circle, color: AppColors.primary, size: 18)
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: AppColors.primary,
+                                    size: 18,
+                                  )
                                 : null,
                             onTap: () => Navigator.of(context).pop(chainage),
                           );
@@ -1203,4 +1442,3 @@ class _ChainagePickerSheetState extends State<_ChainagePickerSheet> {
     );
   }
 }
-

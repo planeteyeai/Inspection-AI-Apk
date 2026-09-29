@@ -94,7 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: const CircleBorder(),
                         child: IconButton(
                           onPressed: widget.onBack,
-                          icon: const Icon(AppIcons.back, size: 18, color: AppColors.ink),
+                          icon: const Icon(
+                            AppIcons.back,
+                            size: 18,
+                            color: AppColors.ink,
+                          ),
                         ),
                       ),
                     ),
@@ -162,7 +166,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onSubmitted: (_) => _submit(),
                                 decoration: const InputDecoration(
                                   hintText: 'Enter your User ID',
-                                  prefixIcon: Icon(AppIcons.person, color: AppColors.primary),
+                                  prefixIcon: Icon(
+                                    AppIcons.person,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
                               ),
                               if (_errorMessage != null) ...[

@@ -43,16 +43,19 @@ void main() {
       expect(issue.confidence, closeTo(0.9, 0.001));
     });
 
-    test('rejects clearly out-of-range coordinates instead of hard-clamping', () {
-      expect(
-        BoundingBox.tryParse({'x1': -5, 'y1': 10, 'x2': 40, 'y2': 50}),
-        isNull,
-      );
-      expect(
-        BoundingBox.tryParse({'x1': 10, 'y1': 10, 'x2': 150, 'y2': 50}),
-        isNull,
-      );
-    });
+    test(
+      'rejects clearly out-of-range coordinates instead of hard-clamping',
+      () {
+        expect(
+          BoundingBox.tryParse({'x1': -5, 'y1': 10, 'x2': 40, 'y2': 50}),
+          isNull,
+        );
+        expect(
+          BoundingBox.tryParse({'x1': 10, 'y1': 10, 'x2': 150, 'y2': 50}),
+          isNull,
+        );
+      },
+    );
 
     test('clamps only tiny boundary drift', () {
       final box = BoundingBox.tryParse({

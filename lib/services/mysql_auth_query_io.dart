@@ -55,16 +55,18 @@ Future<ActiveUserRecord?> findActiveUserImpl(String username) async {
     await conn.connect(timeoutMs: 10000);
 
     stage = 'execute';
-    final result = await conn.execute(
-      '''
+    final result = await conn
+        .execute(
+          '''
 SELECT uid, username, first_name, last_name, user_role, user_status
 FROM database_Bms.users
 WHERE username = :username
 AND user_status = 'Active'
 LIMIT 1
 ''',
-      {'username': username},
-    ).timeout(const Duration(seconds: 12));
+          {'username': username},
+        )
+        .timeout(const Duration(seconds: 12));
 
     if (result.numOfRows < 1) {
       return null;

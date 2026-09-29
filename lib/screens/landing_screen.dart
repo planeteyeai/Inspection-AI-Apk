@@ -15,7 +15,9 @@ class LandingScreen extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           const BridgeHeroImage(),
-          DecoratedBox(decoration: BoxDecoration(gradient: AppColors.heroOverlay)),
+          DecoratedBox(
+            decoration: BoxDecoration(gradient: AppColors.heroOverlay),
+          ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
@@ -32,7 +34,11 @@ class LandingScreen extends StatelessWidget {
                       color: Colors.white,
                       letterSpacing: 0.6,
                       shadows: [
-                        Shadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4)),
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
                       ],
                     ),
                   ),

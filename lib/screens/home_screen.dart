@@ -69,7 +69,11 @@ class HomeScreen extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Icon(AppIcons.play, color: Colors.white, size: 28),
+                        child: const Icon(
+                          AppIcons.play,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       const Expanded(
@@ -78,12 +82,21 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Text(
                               'START INSPECTION',
-                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900, letterSpacing: 0.4),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4,
+                              ),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Project → Chainage → Bridge → AI Analysis',
-                              style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -97,20 +110,30 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
             AppSectionCard(
               title: 'CURRENT PROJECT',
-              subtitle: lastBridgeData == null ? 'No active selection in this session' : 'From the current session',
+              subtitle: lastBridgeData == null
+                  ? 'No active selection in this session'
+                  : 'From the current session',
               child: lastBridgeData == null
-                  ? const Text('Start an inspection to see project details here.', style: AppTextStyles.muted)
+                  ? const Text(
+                      'Start an inspection to see project details here.',
+                      style: AppTextStyles.muted,
+                    )
                   : Column(
                       children: [
                         _infoRow('Project', lastBridgeData!.projectName),
                         _infoRow('Chainage', lastBridgeData!.chainages),
                         _infoRow(
                           'Bridge',
-                          lastBridgeData!.bridgeId != null ? '${lastBridgeData!.bridgeId}' : '—',
+                          lastBridgeData!.bridgeId != null
+                              ? '${lastBridgeData!.bridgeId}'
+                              : '—',
                         ),
                         const Align(
                           alignment: Alignment.centerLeft,
-                          child: AppStatusBadge(label: 'In Progress', tone: AppStatusTone.success),
+                          child: AppStatusBadge(
+                            label: 'In Progress',
+                            tone: AppStatusTone.success,
+                          ),
                         ),
                       ],
                     ),
@@ -125,7 +148,14 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Icon(AppIcons.reports, color: AppColors.primary, size: 22),
                     SizedBox(width: 10),
-                    Text('View Reports', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.ink)),
+                    Text(
+                      'View Reports',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
                     SizedBox(width: 6),
                     Icon(AppIcons.next, color: AppColors.primary, size: 18),
                   ],
@@ -151,7 +181,16 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(width: 90, child: Text(label, style: AppTextStyles.label)),
-          Expanded(child: Text(display, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.ink))),
+          Expanded(
+            child: Text(
+              display,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
         ],
       ),
     );

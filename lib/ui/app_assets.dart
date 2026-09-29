@@ -17,8 +17,10 @@ class AppAssets {
   static const String heroBridge = 'assets/images/bridges/hero_bridge.jpg';
 
   /// Optional future launcher / brand raster (user-provided if needed).
-  static const String brandMarkSource = 'assets/images/branding/app_icon_source.png';
+  static const String brandMarkSource =
+      'assets/images/branding/app_icon_source.png';
 
   /// Login screen background (your Bandra–Worli Sea Link photograph).
-  static const String loginBackground = 'assets/images/backgrounds/login_bridge.jpg';
+  static const String loginBackground =
+      'assets/images/backgrounds/login_bridge.jpg';
 }

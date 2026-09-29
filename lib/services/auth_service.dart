@@ -22,11 +22,31 @@ class AuthService {
 
   /// Separate from StorageService report/GPS keys.
   static const String sessionUserIdKey = 'thermal_ai_auth_user_id';
+  static const String sessionUserUidKey = 'thermal_ai_auth_user_uid';
 
   static Future<bool> hasSavedSession() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(sessionUserIdKey);
     return saved == authorizedUserId;
+  }
+
+  static Future<int?> getCurrentUid() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedUid = prefs.getInt(sessionUserUidKey);
+    if (cachedUid != null && cachedUid > 0) return cachedUid;
+
+    // Fallback: If session exists with username, query active user to get integer uid
+    final savedUsername = prefs.getString(sessionUserIdKey);
+    if (savedUsername != null && savedUsername.isNotEmpty) {
+      try {
+        final record = await DatabaseService.findActiveUser(savedUsername);
+        if (record != null && record.uid > 0) {
+          await prefs.setInt(sessionUserUidKey, record.uid);
+          return record.uid;
+        }
+      } catch (_) {}
+    }
+    return null;
   }
 
   static Future<AuthResult> login(String rawUserId) async {
@@ -45,6 +65,7 @@ class AuthService {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(sessionUserIdKey, record.username);
+      await prefs.setInt(sessionUserUidKey, record.uid);
       return AuthResult.ok();
     } on AuthConnectionException {
       return AuthResult.failed(
@@ -61,5 +82,6 @@ class AuthService {
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(sessionUserIdKey);
+    await prefs.remove(sessionUserUidKey);
   }
 }

@@ -39,7 +39,11 @@ class _HeroPlaceholder extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AppIcons.image, size: 48, color: AppColors.primary.withValues(alpha: 0.55)),
+              Icon(
+                AppIcons.image,
+                size: 48,
+                color: AppColors.primary.withValues(alpha: 0.55),
+              ),
               const SizedBox(height: 14),
               const Text(
                 'Add your bridge photograph',

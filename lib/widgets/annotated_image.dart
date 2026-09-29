@@ -40,7 +40,9 @@ class AnnotatedImageWidget extends StatelessWidget {
                 final maxW = constraints.maxWidth.isFinite
                     ? constraints.maxWidth
                     : MediaQuery.sizeOf(context).width;
-                final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 280.0;
+                final maxH = constraints.maxHeight.isFinite
+                    ? constraints.maxHeight
+                    : 280.0;
 
                 final fitted = applyBoxFit(
                   BoxFit.contain,
@@ -162,11 +164,18 @@ class _BoundingBoxPainter extends CustomPainter {
         ..strokeWidth = isHovered ? 3.0 : 2.0
         ..style = PaintingStyle.stroke;
 
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6)), fillPaint);
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6)), borderPaint);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+        fillPaint,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(6)),
+        borderPaint,
+      );
 
       final textSpan = TextSpan(
-        text: ' #${i + 1} ${issue.type.toUpperCase()} (${(issue.confidence * 100).toStringAsFixed(0)}%) ',
+        text:
+            ' #${i + 1} ${issue.type.toUpperCase()} (${(issue.confidence * 100).toStringAsFixed(0)}%) ',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 10,

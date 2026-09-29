@@ -26,7 +26,9 @@ class AppStepIndicator extends StatelessWidget {
                 child: Icon(
                   AppIcons.next,
                   size: 14,
-                  color: i <= currentIndex ? AppColors.primary : AppColors.border,
+                  color: i <= currentIndex
+                      ? AppColors.primary
+                      : AppColors.border,
                 ),
               ),
             Container(
@@ -35,11 +37,13 @@ class AppStepIndicator extends StatelessWidget {
                 color: i == currentIndex
                     ? AppColors.lightCyan
                     : i < currentIndex
-                        ? AppColors.softBlue
-                        : AppColors.surface,
+                    ? AppColors.softBlue
+                    : AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: i <= currentIndex ? AppColors.primary.withValues(alpha: 0.45) : AppColors.border,
+                  color: i <= currentIndex
+                      ? AppColors.primary.withValues(alpha: 0.45)
+                      : AppColors.border,
                 ),
               ),
               child: Text(
@@ -47,7 +51,9 @@ class AppStepIndicator extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: i <= currentIndex ? AppColors.primaryDark : AppColors.muted,
+                  color: i <= currentIndex
+                      ? AppColors.primaryDark
+                      : AppColors.muted,
                 ),
               ),
             ),

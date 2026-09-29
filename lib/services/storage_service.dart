@@ -10,7 +10,9 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final rawList = prefs.getStringList(_reportsKey) ?? [];
-      return rawList.map((jsonStr) => Report.fromJson(jsonDecode(jsonStr))).toList();
+      return rawList
+          .map((jsonStr) => Report.fromJson(jsonDecode(jsonStr)))
+          .toList();
     } catch (e) {
       return [];
     }

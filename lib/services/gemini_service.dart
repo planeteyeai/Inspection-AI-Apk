@@ -38,17 +38,26 @@ class GeminiService {
   }
 
   static String _buildDetectionPrompt(String? targetIssueType) {
-    final targetKey = (targetIssueType == null || targetIssueType.trim().isEmpty)
+    final targetKey =
+        (targetIssueType == null || targetIssueType.trim().isEmpty)
         ? 'all'
         : targetIssueType.trim();
     final targetLabel = _targetLabels[targetKey] ?? targetKey;
     final focused = targetKey != 'all';
 
     final buffer = StringBuffer();
-    buffer.writeln('You are a structural inspection vision model for bridges and civil structures.');
-    buffer.writeln('Analyze the provided inspection photo and return ONLY valid JSON.');
-    buffer.writeln('Treat close-up photos of concrete/masonry/steel members as valid inspection images.');
-    buffer.writeln('Do not refuse detection merely because the framing is a tight close-up.');
+    buffer.writeln(
+      'You are a structural inspection vision model for bridges and civil structures.',
+    );
+    buffer.writeln(
+      'Analyze the provided inspection photo and return ONLY valid JSON.',
+    );
+    buffer.writeln(
+      'Treat close-up photos of concrete/masonry/steel members as valid inspection images.',
+    );
+    buffer.writeln(
+      'Do not refuse detection merely because the framing is a tight close-up.',
+    );
     buffer.writeln();
     buffer.writeln('Selected inspection targetIssueType: $targetKey');
     buffer.writeln('Selected inspection target label: $targetLabel');
@@ -56,29 +65,50 @@ class GeminiService {
 
     if (focused) {
       buffer.writeln('TARGET-SPECIFIC RULES:');
-      buffer.writeln('- Prioritize ONLY the selected target: $targetLabel ($targetKey).');
-      buffer.writeln('- Do NOT substitute a different distress merely because it is more noticeable.');
-      buffer.writeln('- If the selected target is not actually visible, return "issues": [].');
+      buffer.writeln(
+        '- Prioritize ONLY the selected target: $targetLabel ($targetKey).',
+      );
+      buffer.writeln(
+        '- Do NOT substitute a different distress merely because it is more noticeable.',
+      );
+      buffer.writeln(
+        '- If the selected target is not actually visible, return "issues": [].',
+      );
       buffer.writeln('- Do NOT invent a detection or fake bounding box.');
       buffer.writeln('- Set each issue "type" exactly to "$targetKey".');
       if (targetKey == 'hollow_section') {
-        buffer.writeln('- For hollow_section, localize the actual hollow/open void/cavity/opening.');
+        buffer.writeln(
+          '- For hollow_section, localize the actual hollow/open void/cavity/opening.',
+        );
         buffer.writeln(
           '- Do NOT confuse hollow_section with staining/discoloration, cracks, shadows, surface texture, spalling, or corrosion.',
         );
       } else if (targetKey == 'crack' || targetKey == 'wide_crack') {
-        buffer.writeln('- Localize the complete visible crack path with a tight box around the crack itself.');
-        buffer.writeln('- Do NOT confuse the crack with unrelated staining, shadows, or adjacent surface texture.');
+        buffer.writeln(
+          '- Localize the complete visible crack path with a tight box around the crack itself.',
+        );
+        buffer.writeln(
+          '- Do NOT confuse the crack with unrelated staining, shadows, or adjacent surface texture.',
+        );
       } else if (targetKey == 'efflorescence') {
-        buffer.writeln('- Localize only the visible efflorescence/white deposit region.');
+        buffer.writeln(
+          '- Localize only the visible efflorescence/white deposit region.',
+        );
       } else if (targetKey == 'spalling' || targetKey == 'scaling') {
-        buffer.writeln('- Localize only the actual damaged/spalled/scaled concrete region.');
-      } else if (targetKey == 'steel_corrosion' || targetKey == 'exposed_steel') {
-        buffer.writeln('- Localize only the visible corrosion / exposed steel region.');
+        buffer.writeln(
+          '- Localize only the actual damaged/spalled/scaled concrete region.',
+        );
+      } else if (targetKey == 'steel_corrosion' ||
+          targetKey == 'exposed_steel') {
+        buffer.writeln(
+          '- Localize only the visible corrosion / exposed steel region.',
+        );
       }
       buffer.writeln();
     } else {
-      buffer.writeln('Detect visible structural distress. Allowed type values:');
+      buffer.writeln(
+        'Detect visible structural distress. Allowed type values:',
+      );
       buffer.writeln(_targetLabels.keys.where((k) => k != 'all').join(', '));
       buffer.writeln();
     }
@@ -90,7 +120,9 @@ class GeminiService {
     buffer.writeln('    {');
     buffer.writeln('      "type": "string",');
     buffer.writeln('      "confidence": 0-100,');
-    buffer.writeln('      "boundingBox": { "x1": number, "y1": number, "x2": number, "y2": number },');
+    buffer.writeln(
+      '      "boundingBox": { "x1": number, "y1": number, "x2": number, "y2": number },',
+    );
     buffer.writeln('      "description": "string",');
     buffer.writeln('      "recommendation": "string"');
     buffer.writeln('    }');
@@ -99,24 +131,56 @@ class GeminiService {
     buffer.writeln('}');
     buffer.writeln();
     buffer.writeln('LOCALIZATION CONTRACT (applies to EVERY issue type):');
-    buffer.writeln('- Each boundingBox must tightly enclose ONLY the actual visible distress pixels.');
-    buffer.writeln('- Include the complete visible distress; do not cut it off.');
-    buffer.writeln('- Exclude unnecessary surrounding concrete/stone/background.');
-    buffer.writeln('- Do NOT cover an entire wall, pier, soffit, or structural element unless the distress genuinely spans it.');
-    buffer.writeln('- Do NOT return a tall/wide strip that mostly contains sound surface.');
-    buffer.writeln('- Do NOT default to near-full-image height or width (e.g. y1≈0 and y2≈100) unless distress pixels truly span that full extent continuously.');
-    buffer.writeln('- Independently measure the distress extent on X and on Y; each axis should stop where the visible distress stops.');
-    buffer.writeln('- Follow the visible spatial extent of the distress (linear, patch, opening, stain, etc.).');
-    buffer.writeln('- Allow a small natural margin of at most ~1% of image width/height beyond the distress edges.');
-    buffer.writeln('- Thin/linear distress (e.g. cracks) may have a narrow box; do not artificially widen it.');
-    buffer.writeln('- Small patches (corrosion, spalling, openings) may have a small box; do not artificially enlarge it.');
-    buffer.writeln('- Prefer ONE issue / ONE box per distinct physical distress region.');
-    buffer.writeln('- Do NOT emit multiple overlapping/nested boxes for the same visible region.');
-    buffer.writeln('- If co-located symptoms share the same pixels, choose the single best primary type and one tight box.');
-    buffer.writeln('- Ignore any pre-drawn UI overlays, labels, or orange rectangles that may appear in a screenshot; localize the real surface distress only.');
+    buffer.writeln(
+      '- Each boundingBox must tightly enclose ONLY the actual visible distress pixels.',
+    );
+    buffer.writeln(
+      '- Include the complete visible distress; do not cut it off.',
+    );
+    buffer.writeln(
+      '- Exclude unnecessary surrounding concrete/stone/background.',
+    );
+    buffer.writeln(
+      '- Do NOT cover an entire wall, pier, soffit, or structural element unless the distress genuinely spans it.',
+    );
+    buffer.writeln(
+      '- Do NOT return a tall/wide strip that mostly contains sound surface.',
+    );
+    buffer.writeln(
+      '- Do NOT default to near-full-image height or width (e.g. y1≈0 and y2≈100) unless distress pixels truly span that full extent continuously.',
+    );
+    buffer.writeln(
+      '- Independently measure the distress extent on X and on Y; each axis should stop where the visible distress stops.',
+    );
+    buffer.writeln(
+      '- Follow the visible spatial extent of the distress (linear, patch, opening, stain, etc.).',
+    );
+    buffer.writeln(
+      '- Allow a small natural margin of at most ~1% of image width/height beyond the distress edges.',
+    );
+    buffer.writeln(
+      '- Thin/linear distress (e.g. cracks) may have a narrow box; do not artificially widen it.',
+    );
+    buffer.writeln(
+      '- Small patches (corrosion, spalling, openings) may have a small box; do not artificially enlarge it.',
+    );
+    buffer.writeln(
+      '- Prefer ONE issue / ONE box per distinct physical distress region.',
+    );
+    buffer.writeln(
+      '- Do NOT emit multiple overlapping/nested boxes for the same visible region.',
+    );
+    buffer.writeln(
+      '- If co-located symptoms share the same pixels, choose the single best primary type and one tight box.',
+    );
+    buffer.writeln(
+      '- Ignore any pre-drawn UI overlays, labels, or orange rectangles that may appear in a screenshot; localize the real surface distress only.',
+    );
     buffer.writeln();
     buffer.writeln('BOUNDING BOX FORMAT (mandatory):');
-    buffer.writeln('- boundingBox coordinates are PERCENTAGES of the FULL ORIGINAL IMAGE.');
+    buffer.writeln(
+      '- boundingBox coordinates are PERCENTAGES of the FULL ORIGINAL IMAGE.',
+    );
     buffer.writeln('- Range is 0 to 100 inclusive.');
     buffer.writeln('- x1 = left, y1 = top, x2 = right, y2 = bottom.');
     buffer.writeln('- Require x1 < x2 and y1 < y2.');
@@ -124,7 +188,9 @@ class GeminiService {
     buffer.writeln('- Do NOT use 0-1000 coordinates.');
     buffer.writeln('- Do NOT use pixel coordinates.');
     buffer.writeln('- Do NOT use normalized 0-1 coordinates.');
-    buffer.writeln('- If you cannot localize a valid tight box, omit boundingBox for that issue (do not invent one).');
+    buffer.writeln(
+      '- If you cannot localize a valid tight box, omit boundingBox for that issue (do not invent one).',
+    );
     return buffer.toString();
   }
 
@@ -160,7 +226,8 @@ class GeminiService {
     DistressIssue(
       elementName: 'Pier Cap',
       type: 'wide_crack',
-      description: 'Wide longitudinal crack running across the pier cap soffit.',
+      description:
+          'Wide longitudinal crack running across the pier cap soffit.',
       depth: '0.02',
       width: '0.005',
       length: '1.2',
@@ -180,7 +247,8 @@ class GeminiService {
     DistressIssue(
       elementName: 'PSC Girder',
       type: 'spalling',
-      description: 'Concrete spalling with exposed aggregate on the bottom flange.',
+      description:
+          'Concrete spalling with exposed aggregate on the bottom flange.',
       depth: '0.04',
       width: '0.3',
       length: '0.4',
@@ -200,7 +268,8 @@ class GeminiService {
     DistressIssue(
       elementName: 'Pier Column',
       type: 'steel_corrosion',
-      description: 'Orange rust stains leaching from internal rebar indicating active corrosion.',
+      description:
+          'Orange rust stains leaching from internal rebar indicating active corrosion.',
       depth: '0.01',
       width: '0.15',
       length: '0.6',
@@ -307,16 +376,15 @@ class GeminiService {
       final model = GenerativeModel(
         model: 'gemini-2.5-flash',
         apiKey: apiKey!,
-        generationConfig: GenerationConfig(responseMimeType: 'application/json'),
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+        ),
       );
 
       final prompt = _buildDetectionPrompt(targetIssueType);
 
       final response = await model.generateContent([
-        Content.multi([
-          DataPart(mimeType, imageBytes),
-          TextPart(prompt),
-        ])
+        Content.multi([DataPart(mimeType, imageBytes), TextPart(prompt)]),
       ]);
 
       final text = response.text ?? '';
@@ -335,7 +403,9 @@ class GeminiService {
 
       // Safety check only — target is already in the prompt. Do not reinterpret types.
       if (targetIssueType != null && targetIssueType != 'all') {
-        final filtered = analysis.issues.where((i) => i.type == targetIssueType).toList();
+        final filtered = analysis.issues
+            .where((i) => i.type == targetIssueType)
+            .toList();
         final filteredAnalysis = ImageAnalysis(
           summary: analysis.summary,
           issues: filtered,
@@ -400,11 +470,14 @@ class GeminiService {
       final model = GenerativeModel(
         model: 'gemini-2.5-flash',
         apiKey: apiKey!,
-        generationConfig: GenerationConfig(responseMimeType: 'application/json'),
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+        ),
       );
 
       final elementNames = elements.map((e) => e.elementName).toList();
-      final prompt = '''
+      final prompt =
+          '''
 You are a senior bridge inspection engineer.
 Return ONLY a JSON array with one object per structural element, in this exact order:
 ${elementNames.map((n) => '- $n').join('\n')}
@@ -436,16 +509,15 @@ Rules:
 ''';
 
       final response = await model.generateContent([
-        Content.multi([
-          DataPart(mimeType, imageBytes),
-          TextPart(prompt),
-        ])
+        Content.multi([DataPart(mimeType, imageBytes), TextPart(prompt)]),
       ]);
 
       final text = response.text ?? '';
       final cleanJson = _extractJson(text);
       final decodedList = jsonDecode(cleanJson) as List<dynamic>;
-      final parsed = decodedList.map((e) => BridgeElementResult.fromJson(e as Map<String, dynamic>)).toList();
+      final parsed = decodedList
+          .map((e) => BridgeElementResult.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       // Align to requested element order / names when possible.
       return elements.asMap().entries.map((entry) {
@@ -455,8 +527,11 @@ Rules:
           final r = parsed[i];
           return r.copyWith(elementName: el.elementName);
         }
-        final byName = parsed.where((p) => p.elementName == el.elementName).toList();
-        if (byName.isNotEmpty) return byName.first.copyWith(elementName: el.elementName);
+        final byName = parsed
+            .where((p) => p.elementName == el.elementName)
+            .toList();
+        if (byName.isNotEmpty)
+          return byName.first.copyWith(elementName: el.elementName);
         final mock = _mockBridgeResults[i % _mockBridgeResults.length];
         return BridgeElementResult(
           elementName: el.elementName,
@@ -503,7 +578,10 @@ Rules:
   }
 
   static String _extractJson(String raw) {
-    var text = raw.replaceAll(RegExp(r'```json', caseSensitive: false), '').replaceAll('```', '').trim();
+    var text = raw
+        .replaceAll(RegExp(r'```json', caseSensitive: false), '')
+        .replaceAll('```', '')
+        .trim();
     final sObj = text.indexOf('{');
     final sArr = text.indexOf('[');
     if (sObj != -1 && (sArr == -1 || sObj < sArr)) {

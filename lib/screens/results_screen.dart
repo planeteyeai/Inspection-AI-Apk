@@ -1,7 +1,10 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/inspection_models.dart';
+import '../services/auth_service.dart';
+import '../services/database_service.dart';
+import '../services/gemini_service.dart';
 import '../services/storage_service.dart';
 import '../services/pdf_service.dart';
 import '../ui/app_theme.dart';
@@ -31,6 +34,8 @@ class ResultsScreen extends StatefulWidget {
 class _ResultsScreenState extends State<ResultsScreen> {
   final int? _hoveredIndex = null;
   bool _isSaved = false;
+  bool _isDbSaved = false;
+  bool _isSavingDb = false;
   late List<BridgeElementResult>? _bridgeResults;
   int? _savedReportId;
 
@@ -42,6 +47,99 @@ class _ResultsScreenState extends State<ResultsScreen> {
         : List<BridgeElementResult>.from(widget.bridgeResults!);
     _savedReportId = DateTime.now().millisecondsSinceEpoch;
     _autoSaveReport();
+    _persistDistressToMySQL();
+  }
+
+  Future<void> _persistDistressToMySQL() async {
+    // 1. Guard against demo mode or failure results
+    if (GeminiService.isDemoMode) {
+      if (kDebugMode) {
+        debugPrint(
+          '[DISTRESS_DB] Skipping persistence: Gemini is in Demo Mode.',
+        );
+      }
+      return;
+    }
+
+    // 2. Guard against empty issues or already saved
+    if (widget.analysis.issues.isEmpty || _isDbSaved || _isSavingDb) {
+      return;
+    }
+
+    final bridgeData = widget.bridgeData;
+    if (bridgeData == null || bridgeData.bridgeId == null) {
+      if (kDebugMode) {
+        debugPrint(
+          '[DISTRESS_DB] Skipping persistence: No bridgeData or bridgeId present.',
+        );
+      }
+      return;
+    }
+
+    _isSavingDb = true;
+
+    try {
+      // 3. Resolve user UID
+      final uid = await AuthService.getCurrentUid();
+      if (uid == null || uid <= 0) {
+        if (kDebugMode) {
+          debugPrint(
+            '[DISTRESS_DB] Skipping persistence: Authenticated user integer UID could not be determined.',
+          );
+        }
+        _isSavingDb = false;
+        return;
+      }
+
+      // 4. Resolve bridge_inspection_id belonging to the actual inspection session.
+      // Do not silently associate distress with an arbitrary or latest inspection.
+      final inspectionId = bridgeData.bridgeInspectionId;
+      if (inspectionId == null || inspectionId <= 0) {
+        if (kDebugMode) {
+          debugPrint(
+            '[DISTRESS_DB] Aborted persistence: No valid bridge_inspection_id provided for this inspection session (bridgeId=${bridgeData.bridgeId}). Attaching distress to an arbitrary inspection record is prohibited.',
+          );
+        }
+        _isSavingDb = false;
+        return;
+      }
+
+      // 5. Convert issues to entries
+      // The app currently stores captured images in offline local reports (SharedPreferences / Report).
+      // Since no backend file upload service exists to host image files on a server,
+      // the images column is set to null (supported by schema) rather than storing a fictitious file path.
+      final entries = widget.analysis.issues.map((issue) {
+        return BridgeInspectionDistressEntry.fromIssueAndBridgeData(
+          issue: issue,
+          bridgeData: bridgeData,
+          bridgeInspectionId: inspectionId,
+          createdByUid: uid,
+          imageIdentifier: null,
+        );
+      }).toList();
+
+      // 6. Insert into database
+      final success = await DatabaseService.insertBridgeInspectionDistress(
+        entries,
+      );
+      if (success) {
+        _isDbSaved = true;
+        if (kDebugMode) {
+          debugPrint(
+            '[DISTRESS_DB] Successfully persisted ${entries.length} distress records to database_Bms.bridge_inspection_distress.',
+          );
+        }
+      }
+    } catch (e) {
+      // 7. Non-blocking error handling without leaking credentials
+      if (kDebugMode) {
+        debugPrint(
+          '[DISTRESS_DB] Error persisting distress records: ${e.runtimeType}: $e',
+        );
+      }
+    } finally {
+      _isSavingDb = false;
+    }
   }
 
   Report _buildReport({bool includeImage = true}) {
@@ -59,7 +157,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
     return Report(
       id: _savedReportId ?? DateTime.now().millisecondsSinceEpoch,
-      title: widget.bridgeData != null ? widget.bridgeData!.span : 'Bridge Inspection',
+      title: widget.bridgeData != null
+          ? widget.bridgeData!.span
+          : 'Bridge Inspection',
       description: widget.analysis.summary,
       imageBase64: includeImage ? base64Encode(widget.imageBytes) : null,
       timestamp: DateTime.now().toString(),
@@ -73,7 +173,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
         totalLength: totalL,
       ),
       category: issues.isNotEmpty ? 'Issues Found' : 'Optimal',
-      location: widget.bridgeData != null ? widget.bridgeData!.chainages : 'Site A',
+      location: widget.bridgeData != null
+          ? widget.bridgeData!.chainages
+          : 'Site A',
       issues: issues,
       recommendations: widget.analysis.recommendations,
       bridgeData: widget.bridgeData,
@@ -87,7 +189,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
     if (mounted) setState(() => _isSaved = true);
   }
 
-  Future<void> _onBridgeResultsChanged(List<BridgeElementResult> updated) async {
+  Future<void> _onBridgeResultsChanged(
+    List<BridgeElementResult> updated,
+  ) async {
     setState(() {
       _bridgeResults = updated;
       _isSaved = false;
@@ -96,7 +200,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   void _exportPdf() {
-    PdfService.generateAndDownloadSingleReport(_buildReport(includeImage: false));
+    PdfService.generateAndDownloadSingleReport(
+      _buildReport(includeImage: false),
+    );
   }
 
   @override
@@ -116,7 +222,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     alignment: Alignment.centerRight,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8F8EF),
                         borderRadius: BorderRadius.circular(10),
@@ -124,9 +233,20 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(AppIcons.checkFilled, size: 12, color: AppColors.success),
+                          Icon(
+                            AppIcons.checkFilled,
+                            size: 12,
+                            color: AppColors.success,
+                          ),
                           SizedBox(width: 4),
-                          Text('Saved Offline', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.success)),
+                          Text(
+                            'Saved Offline',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.success,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -153,13 +273,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
           AppSectionCard(
             title: 'DETECTED DISTRESS',
             child: widget.analysis.issues.isEmpty
-                ? const Text('No structural distress detected.', style: AppTextStyles.muted)
+                ? const Text(
+                    'No structural distress detected.',
+                    style: AppTextStyles.muted,
+                  )
                 : Column(
-                    children: widget.analysis.issues.asMap().entries.map((entry) {
+                    children: widget.analysis.issues.asMap().entries.map((
+                      entry,
+                    ) {
                       final idx = entry.key;
                       final issue = entry.value;
                       return Container(
-                        margin: EdgeInsets.only(bottom: idx == widget.analysis.issues.length - 1 ? 0 : 12),
+                        margin: EdgeInsets.only(
+                          bottom: idx == widget.analysis.issues.length - 1
+                              ? 0
+                              : 12,
+                        ),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppColors.canvas,
@@ -174,47 +303,97 @@ class _ResultsScreenState extends State<ResultsScreen> {
                                 Expanded(
                                   child: Text(
                                     'DISTRESS #${idx + 1}: ${issue.type.toUpperCase()}',
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.ink),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.ink,
+                                    ),
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.lightCyan,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
                                     '${(issue.confidence * 100).toStringAsFixed(0)}% Confidence',
-                                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryDark,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            if (issue.elementName != null && issue.elementName!.isNotEmpty) ...[
+                            if (issue.elementName != null &&
+                                issue.elementName!.isNotEmpty) ...[
                               const SizedBox(height: 4),
                               Text(
                                 issue.elementName!.toUpperCase(),
-                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppColors.primary),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ],
                             const SizedBox(height: 12),
-                            const Text('MEASUREMENTS', style: AppTextStyles.label),
+                            const Text(
+                              'MEASUREMENTS',
+                              style: AppTextStyles.label,
+                            ),
                             const SizedBox(height: 8),
                             Wrap(
                               spacing: 10,
                               runSpacing: 8,
                               children: [
-                                AppMetricCard(label: 'Length', value: issue.length == null || issue.length!.isEmpty ? '—' : '${issue.length}m'),
-                                AppMetricCard(label: 'Width', value: issue.width == null || issue.width!.isEmpty ? '—' : '${issue.width}m'),
-                                AppMetricCard(label: 'Depth / Thickness', value: issue.depth.isEmpty ? '—' : '${issue.depth}m'),
-                                if (issue.area != null) AppMetricCard(label: 'Area', value: '${issue.area!.toStringAsFixed(3)}m²'),
-                                if (issue.quantityUnit != null && issue.quantityValue != null)
-                                  AppMetricCard(label: issue.quantityUnit!, value: '${issue.quantityValue}'),
+                                AppMetricCard(
+                                  label: 'Length',
+                                  value:
+                                      issue.length == null ||
+                                          issue.length!.isEmpty
+                                      ? '—'
+                                      : '${issue.length}m',
+                                ),
+                                AppMetricCard(
+                                  label: 'Width',
+                                  value:
+                                      issue.width == null ||
+                                          issue.width!.isEmpty
+                                      ? '—'
+                                      : '${issue.width}m',
+                                ),
+                                AppMetricCard(
+                                  label: 'Depth / Thickness',
+                                  value: issue.depth.isEmpty
+                                      ? '—'
+                                      : '${issue.depth}m',
+                                ),
+                                if (issue.area != null)
+                                  AppMetricCard(
+                                    label: 'Area',
+                                    value:
+                                        '${issue.area!.toStringAsFixed(3)}m²',
+                                  ),
+                                if (issue.quantityUnit != null &&
+                                    issue.quantityValue != null)
+                                  AppMetricCard(
+                                    label: issue.quantityUnit!,
+                                    value: '${issue.quantityValue}',
+                                  ),
                               ],
                             ),
                             if (issue.description.isNotEmpty) ...[
                               const SizedBox(height: 10),
-                              Text(issue.description, style: AppTextStyles.muted),
+                              Text(
+                                issue.description,
+                                style: AppTextStyles.muted,
+                              ),
                             ],
                           ],
                         ),

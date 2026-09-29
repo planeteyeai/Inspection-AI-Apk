@@ -39,14 +39,28 @@ Future<List<BridgeRecord>> getBridgesForProjectStructureTypeAndChainageImpl(
   throw const AuthConnectionException();
 }
 
-Future<List<SpanArrangementRecord>> getSpanArrangementsForBridgeImpl(int bridgeId) async {
+Future<List<SpanArrangementRecord>> getSpanArrangementsForBridgeImpl(
+  int bridgeId,
+) async {
   throw const AuthConnectionException();
 }
 
-Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfoImpl(int bridgeId) async {
+Future<SuperstructureBridgeInfo?> getSuperstructureBridgeInfoImpl(
+  int bridgeId,
+) async {
   throw const AuthConnectionException();
 }
 
 Future<List<String>> getSuperstructureTypeOptionsImpl() async {
+  throw const AuthConnectionException();
+}
+
+Future<int?> getLatestBridgeInspectionIdImpl(int bridgeId) async {
+  throw const AuthConnectionException();
+}
+
+Future<bool> insertBridgeInspectionDistressImpl(
+  List<BridgeInspectionDistressEntry> entries,
+) async {
   throw const AuthConnectionException();
 }
